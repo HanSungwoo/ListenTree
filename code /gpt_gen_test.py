@@ -40,14 +40,8 @@ def generate_response(user_input, model, client):
 
 # 나무 성장 단계 결정 함수
 def update_tree_stage(conversation_count):
-    if conversation_count < 5:
-        return "seed"
-    elif 5 <= conversation_count < 10:
-        return "sapling"
-    elif 10 <= conversation_count < 20:
-        return "young_tree"
-    else:
-        return "full_tree"
+    tree_set = ["seed", "sapling", "young_tree", "mid_tree", "full_tree"]
+    return tree_set[conversation_count//50]
 
 # 열매 요약 기능 구현 (최근 대화 내용을 요약)
 def summarize_conversation(conversations, model, client):
