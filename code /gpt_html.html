@@ -21,6 +21,33 @@
         .bot-message {
             color: green;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 2px solid #ccc;
+            z-index: 1000;
+        }
+        .modal.show {
+            display: block;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .modal-overlay.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -31,7 +58,7 @@
             <!-- 여기에 나무 이미지를 나무 단계에 따라 업데이트하여 보여줄 수 있습니다 -->
         </div>
         <div id="fruits">
-            <h3>Your Fruits</h3>
+            <h3>Your Fruits <button id="show-fruit-summary">Show Summary</button></h3>
             <ul id="fruit-list"></ul>
         </div>
     </div>
@@ -45,9 +72,16 @@
         <button type="submit">Send</button>
     </form>
 
+    <div id="fruit-summary-modal" class="modal">
+        <h3>All Summaries</h3>
+        <ul id="all-summaries-list"></ul>
+        <button id="close-modal">Close</button>
+    </div>
+    <div id="modal-overlay" class="modal-overlay"></div>
+
     <script>
         let typingTimer;  // 타이머 변수
-        const doneTypingInterval = 5000;  // 사용자가 타이핑을 멈춘 후 기다리는 시간 (5초)
+        const doneTypingInterval = 3000;  // 사용자가 타이핑을 멈춘 후 기다리는 시간 (5초)
         let collectedTexts = [];  // 사용자가 입력한 텍스트를 수집할 배열
 
         $(document).ready(function() {
@@ -102,7 +136,7 @@
                         let fruitList = $('#fruit-list');
                         fruitList.empty();
                         data.fruits.forEach(fruit => {
-                            fruitList.append(`<li><button onclick="showSummary(${fruit.id})">Fruit ${fruit.id}</button></li>`);
+                            fruitList.append(`<li>Fruit ${fruit.id}</li>`);
                         });
 
                         // 채팅 기록 업데이트 (봇의 응답 추가)
@@ -135,13 +169,36 @@
                 });
                 chatBox.scrollTop(chatBox[0].scrollHeight);  // 자동 스크롤
             }
+
+            // 요약 버튼 클릭 이벤트 핸들러
+            $('#show-fruit-summary').on('click', function() {
+                showAllSummaries();
+            });
+
+            // 요약 모달 닫기
+            $('#close-modal').on('click', function() {
+                $('#fruit-summary-modal').removeClass('show');
+                $('#modal-overlay').removeClass('show');
+            });
         });
 
-        function showSummary(fruitId) {
-            $.get(`/fruit/${fruitId}`, function(data) {
-                alert(`Summary: ${data.summary}`);
+        // 모든 요약을 표시하는 함수
+        function showAllSummaries() {
+            $.get('/fruit', function(data) {
+                let summaryList = $('#all-summaries-list');
+                summaryList.empty();
+                if (data.length === 0) {
+                    summaryList.append(`<li>No summaries available.</li>`);
+                } else {
+                    data.forEach((fruit, index) => {
+                        summaryList.append(`<li>Fruit ${index + 1}: ${fruit.summary}</li>`);
+                    });
+                }
+                $('#fruit-summary-modal').addClass('show');
+                $('#modal-overlay').addClass('show');
             });
         }
+
     </script>
 </body>
 </html>
