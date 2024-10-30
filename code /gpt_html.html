@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <title>Tree Growth Chatbot</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .chat-box {
+            width: 50%;
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+        }
+        .user-message {
+            color: blue;
+        }
+        .bot-message {
+            color: green;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome to the Tree Growth Chatbot</h1>
@@ -18,60 +36,104 @@
         </div>
     </div>
 
+    <div class="chat-box" id="chat-box">
+        <!-- 여기에 사용자와 챗봇의 대화 기록이 표시됩니다 -->
+    </div>
+
     <form id="chat-form">
-        <input type="text" id="user-input" name="message" placeholder="Say something to the chatbot" required>
+        <textarea id="user-input" name="message" placeholder="Say something to the chatbot" rows="3" required></textarea>
         <button type="submit">Send</button>
     </form>
 
-    <div id="response">
-        <h3>Chatbot Response:</h3>
-        <p id="chatbot-response"></p>
-    </div>
-
     <script>
         let typingTimer;  // 타이머 변수
-        const doneTypingInterval = 2000;  // 사용자가 타이핑을 멈춘 후 기다리는 시간 (2초)
+        const doneTypingInterval = 5000;  // 사용자가 타이핑을 멈춘 후 기다리는 시간 (5초)
+        let collectedTexts = [];  // 사용자가 입력한 텍스트를 수집할 배열
 
         $(document).ready(function() {
-            // 타이핑 중에 타이머를 초기화
-            $('#user-input').on('keyup', function() {
-                clearTimeout(typingTimer);
-                typingTimer = setTimeout(doneTyping, doneTypingInterval);
-            });
+            // 기존의 대화 기록을 불러옴
+            updateChatBox({{ chat_history|tojson }});
 
-            // 폼 서밋을 통한 서버 요청 처리
-            $('#chat-form').on('submit', function(event) {
-                event.preventDefault(); // 폼 기본 동작 막기
-                sendMessage();
+            // 타이핑 중에 타이머를 초기화하고 엔터 키가 눌리면 텍스트를 수집
+            $('#user-input').on('keyup', function(event) {
+                clearTimeout(typingTimer);
+
+                // 사용자가 Enter 키를 눌렀을 때 텍스트를 수집하고 필드를 초기화
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    let text = $('#user-input').val().trim();
+                    if (text.length > 0) {
+                        collectedTexts.push(text);
+                        // 입력된 텍스트를 바로 채팅창에 추가
+                        addUserMessageToChat(text);
+                        $('#user-input').val('');  // 입력 필드를 초기화
+                    }
+                }
+
+                // 사용자가 타이핑을 멈췄을 때 5초간 대기 후 메시지를 서버로 전송
+                typingTimer = setTimeout(doneTyping, doneTypingInterval);
             });
 
             // 사용자가 타이핑을 멈추었을 때 서버로 요청을 보냄
             function doneTyping() {
-                sendMessage();
+                if (collectedTexts.length > 0) {
+                    let combinedText = collectedTexts.join(" ");
+                    sendMessage(combinedText);
+                    collectedTexts = [];  // 수집한 텍스트 배열 초기화
+                }
             }
 
-            // 서버에 메시지 전송
-            function sendMessage() {
-                let userMessage = $('#user-input').val();
-                if (userMessage.trim().length > 0) {
-                    $.ajax({
-                        url: '/chat',
-                        type: 'POST',
-                        data: { message: userMessage },
-                        success: function(data) {
-                            $('#chatbot-response').text(data.response);
-                            $('#tree-stage').text(data.tree_stage);
-                            $('#user-input').val('');  // 입력 필드를 초기화
+            // 폼 서밋을 통한 서버 요청 처리
+            $('#chat-form').on('submit', function(event) {
+                event.preventDefault(); // 폼 기본 동작 막기
+                doneTyping();
+            });
 
-                            // 열매 리스트 업데이트
-                            let fruitList = $('#fruit-list');
-                            fruitList.empty();
-                            data.fruits.forEach(fruit => {
-                                fruitList.append(`<li><button onclick="showSummary(${fruit.id})">Fruit ${fruit.id}</button></li>`);
-                            });
-                        }
-                    });
-                }
+            // 서버에 메시지 전송
+            function sendMessage(message) {
+                $.ajax({
+                    url: '/chat',
+                    type: 'POST',
+                    data: { message: message },
+                    success: function(data) {
+                        $('#tree-stage').text(data.tree_stage);
+
+                        // 열매 리스트 업데이트
+                        let fruitList = $('#fruit-list');
+                        fruitList.empty();
+                        data.fruits.forEach(fruit => {
+                            fruitList.append(`<li><button onclick="showSummary(${fruit.id})">Fruit ${fruit.id}</button></li>`);
+                        });
+
+                        // 채팅 기록 업데이트 (봇의 응답 추가)
+                        addBotMessageToChat(data.response);
+                    }
+                });
+            }
+
+            // 사용자 메시지를 채팅창에 추가하는 함수
+            function addUserMessageToChat(message) {
+                let chatBox = $('#chat-box');
+                chatBox.append(`<div class="chat-message user-message">User: ${message}</div>`);
+                chatBox.scrollTop(chatBox[0].scrollHeight);  // 자동 스크롤
+            }
+
+            // 봇 메시지를 채팅창에 추가하는 함수
+            function addBotMessageToChat(message) {
+                let chatBox = $('#chat-box');
+                chatBox.append(`<div class="chat-message bot-message">Bot: ${message}</div>`);
+                chatBox.scrollTop(chatBox[0].scrollHeight);  // 자동 스크롤
+            }
+
+            // 채팅 박스 업데이트 함수
+            function updateChatBox(chatHistory) {
+                let chatBox = $('#chat-box');
+                chatBox.empty();
+                chatHistory.forEach(entry => {
+                    chatBox.append(`<div class="chat-message user-message">User: ${entry.user}</div>`);
+                    chatBox.append(`<div class="chat-message bot-message">Bot: ${entry.bot}</div>`);
+                });
+                chatBox.scrollTop(chatBox[0].scrollHeight);  // 자동 스크롤
             }
         });
 
