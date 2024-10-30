@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tree Growth Chatbot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Welcome to the Tree Growth Chatbot</h1>
+    <div>
+        <p>Current Tree Stage: <span id="tree-stage">Seed</span></p>
+        <div id="tree-image">
+            <!-- 여기에 나무 이미지를 나무 단계에 따라 업데이트하여 보여줄 수 있습니다 -->
+        </div>
+        <div id="fruits">
+            <h3>Your Fruits</h3>
+            <ul id="fruit-list"></ul>
+        </div>
+    </div>
+
+    <form id="chat-form">
+        <input type="text" name="message" placeholder="Say something to the chatbot" required>
+        <button type="submit">Send</button>
+    </form>
+
+    <div id="response">
+        <h3>Chatbot Response:</h3>
+        <p id="chatbot-response"></p>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#chat-form').on('submit', function(event) {
+                event.preventDefault();
+                let userMessage = $('input[name="message"]').val();
+
+                $.ajax({
+                    url: '/chat',
+                    type: 'POST',
+                    data: { message: userMessage },
+                    success: function(data) {
+                        $('#chatbot-response').text(data.response);
+                        $('#tree-stage').text(data.tree_stage);
+
+                        // 열매 리스트 업데이트
+                        let fruitList = $('#fruit-list');
+                        fruitList.empty();
+                        data.fruits.forEach(fruit => {
+                            fruitList.append(`<li><button onclick="showSummary(${fruit.id})">Fruit ${fruit.id}</button></li>`);
+                        });
+                    }
+                });
+            });
+        });
+
+        function showSummary(fruitId) {
+            $.get(`/fruit/${fruitId}`, function(data) {
+                alert(`Summary: ${data.summary}`);
+            });
+        }
+    </script>
+</body>
+</html>
