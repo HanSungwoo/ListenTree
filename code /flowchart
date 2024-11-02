@@ -1,0 +1,84 @@
+flowchart LR
+    %% Main Components
+    User([사용자])
+    Concat[Concat]
+    IdleCheck{3초내로<br>다시 작성?}
+    Prompt[프롬프트<br> 생성]
+    TextDB[(텍스트 DB)]
+    Summary[추출요약<br>BERT]
+    SummaryGPT[요약<br>GPT]
+    SummaryData1[추출요약 데이터1]
+    SummaryData2[추출요약 데이터2]
+    SummaryData3[추출요약 데이터3]
+    FruitDB[(과일 보관함<br>DB)]
+    GPT[GPT]
+    TextOut[텍스트<br>출력]
+    Sentiment[감정분석<br>GPT]
+    Sentiment_2[감정분류<br>GPT]
+    ImageOut[이미지<br> 출력]
+    Data_1[로우 데이터1]
+    Data_2[로우 데이터2]
+    Data_3[로우 데이터3]
+
+    %% Flow
+    User -->Concat:::linkText
+    Concat --> IdleCheck
+    IdleCheck -->Concat:::linkText
+    IdleCheck -->Prompt:::linkText
+    
+    %% DB Flow
+    Prompt --> TextDB
+    TextDB --> Data_1
+    TextDB --> Data_2
+    TextDB --> Data_3
+    
+    %% Adjust positioning of raw data nodes
+    subgraph Data_Group
+    direction TB
+    Data_1
+    Data_2
+    Data_3
+    end
+    
+    Data_1 --> Summary
+    Data_2 --> Summary
+    Data_3 --> Summary
+    
+    %% Adjust positioning of summary data nodes
+    subgraph SummaryData_Group
+    direction TB
+    SummaryData1
+    SummaryData2
+    SummaryData3
+    end
+    
+    Summary --> SummaryData1
+    Summary --> SummaryData2
+    Summary --> SummaryData3
+    SummaryData1-->SummaryGPT
+    SummaryData2-->SummaryGPT
+    SummaryData3-->SummaryGPT
+    SummaryGPT-->Sentiment_2
+    Sentiment_2 --> FruitDB
+    User -->FruitDB:::linkText
+    
+    %% Output Flow
+    Prompt --> GPT
+    GPT -->TextOut:::linkText
+    TextOut -->Sentiment:::linkText
+    TextOut --> User
+    Sentiment --> ImageOut
+    ImageOut --> User
+
+    %% Styling
+    classDef primary fill:#e1f5fe,stroke:#01579b,font-size:50px
+    classDef secondary fill:#f3e5f5,stroke:#4a148c,font-size:50px
+    classDef database fill:#e8f5e9,stroke:#1b5e20,font-size:40px
+    classDef process fill:#fff3e0,stroke:#e65100,font-size:45px
+    classDef dataset fill:#fft3e0,stroke:#y31100,font-size:25px
+
+    class User,GPT,Summary,Sentiment,Sentiment_2,SummaryGPT primary
+    class Concat,Prompt,TextOut,ImageOut secondary
+    class TextDB,FruitDB database
+    class IdleCheck,CountCheck process
+    class Data_1,Data_2,Data_3,SummaryData1,SummaryData2,SummaryData3 dataset
