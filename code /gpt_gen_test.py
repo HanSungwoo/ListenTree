@@ -22,7 +22,7 @@ user_data = {
 }
 
 
-# 대화 기능 구현 (GPT-3 호출)
+# 대화 기능 구현 (GPT-4o 호출)
 def generate_response(user_input, model, client):
     try:
         messages = [
@@ -44,7 +44,7 @@ def generate_response(user_input, model, client):
 
 # 나무 성장 단계 결정 함수
 def update_tree_stage(conversation_count):
-    tree_set = ["seed", "sapling", "young_tree", "mid_tree", "full_tree"]
+    tree_set = ["seed", "sapling", "young_tree", "full_tree", "fruit_tree"]
     return tree_set[conversation_count // 50]
 
 
@@ -67,10 +67,6 @@ def summarize_conversation(conversations, model, client):
             temperature=0.7
         )
         return answer.choices[0].message.content.strip()
-
-    except Exception as e:
-        return f"Error: {str(e)}"
-
 
     except Exception as e:
         return f"Error: {str(e)}"
