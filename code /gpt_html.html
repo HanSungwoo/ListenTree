@@ -81,7 +81,7 @@
 
     <script>
         let typingTimer;  // 타이머 변수
-        const doneTypingInterval = 3000;  // 사용자가 타이핑을 멈춘 후 기다리는 시간 (5초)
+        const doneTypingInterval = 3000;  // 사용자가 타이핑을 멈춘 후 기다리는 시간 (3초)
         let collectedTexts = [];  // 사용자가 입력한 텍스트를 수집할 배열
 
         $(document).ready(function() {
@@ -104,7 +104,7 @@
                     }
                 }
 
-                // 사용자가 타이핑을 멈췄을 때 5초간 대기 후 메시지를 서버로 전송
+                // 사용자가 타이핑을 멈췄을 때 3초간 대기 후 메시지를 서버로 전송
                 typingTimer = setTimeout(doneTyping, doneTypingInterval);
             });
 
