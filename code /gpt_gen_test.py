@@ -15,7 +15,7 @@ client = OpenAI(
 )
 # 사용자 데이터 (간단한 예로 메모리에 저장)
 user_data = {
-    "conversation_count": 49,
+    "conversation_count": 0,
     "tree_stage": "seed",
     "fruit": [],
     "chat_history": []  # 새로운 대화 기록을 저장하는 리스트
@@ -33,7 +33,7 @@ def generate_response(user_input, model, client):
         answer = client.chat.completions.create(
             model=model,
             messages=messages,
-            max_tokens=100,
+            max_tokens=50,
             temperature=0.7
         )
         return answer.choices[0].message.content.strip()
@@ -45,7 +45,17 @@ def generate_response(user_input, model, client):
 # 나무 성장 단계 결정 함수
 def update_tree_stage(conversation_count):
     tree_set = ["seed", "sapling", "young_tree", "full_tree", "fruit_tree"]
-    return tree_set[conversation_count // 50]
+    
+    if 0 <= conversation_count < 10:
+        return tree_set[0]  # seed
+    elif 10 <= conversation_count < 30:
+        return tree_set[1]  # sapling
+    elif 30 <= conversation_count < 60:
+        return tree_set[2]  # young_tree
+    elif 60 <= conversation_count < 100:
+        return tree_set[3]  # full_tree
+    elif 100 <= conversation_count < 150:
+        return tree_set[4]  # fruit_tree
 
 
 # 열매 요약 기능 구현 (최근 대화 내용을 요약)
