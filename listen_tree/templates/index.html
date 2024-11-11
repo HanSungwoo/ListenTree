@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Tree Chatbot</title>
+    <style>
+        /* 아이폰 앱 화면 크기 조정 */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+            overflow: hidden;
+        }
+        .app-container {
+            width: 375px;
+            height: 667px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            position: relative;
+            background-image: url('/static/background.png'); /* 배경 이미지 설정 부분 */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            overflow: hidden;
+        }
+        .setting-icon {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 30px;
+            height: 36px;
+        }
+
+        .icons {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            text-align: right;
+        }
+
+        .icon {
+            width: 30px;
+            height: 36px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .tree {
+            width: 100%;
+            margin-top: 80px;
+            text-align: center;
+        }
+        .tree img {
+            width: 50%;
+        }
+        .response {
+            background-color: white;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px auto;
+            display: inline-block;
+            font-size: 18px;
+        }
+        .tree-response {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 18px;
+            margin: 10px auto;
+            display: inline-block;
+            color: green;
+            text-align: center;
+        }
+        .user-response {
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 16px;
+            color: blue;
+            text-align: left;
+            width: 80%;
+            margin-bottom: 5px;
+        }
+        .typing-preview {
+            color: #888;
+            font-style: italic;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .input-wrapper {
+            position: absolute;
+            bottom: 0;                 /* 화면의 최하단에 고정 */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 10px;      /* 하단 여백을 줘서 요소들이 여유 있게 배치됨 */
+            background-color: #f9f9f9; /* 입력 영역의 배경색을 추가해 구분되게 함 */
+        }
+        .input-container {
+            position: relative;       /* input-wrapper 내에서 안정적으로 배치 */
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .input-box {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .send-button {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="setting-icon">
+            <img src="/static/icons/settings.png" alt="Settings" class="icon">
+        </div>
+        <div class="icons">
+            <img src="/static/icons/book.png" alt="도감" class="icon">
+            <img src="/static/icons/storage.png" alt="보관함" class="icon">
+        </div>
+        <div class="tree">
+            <img src="/static/face/tree_def.png" alt="Tree">
+            <div class="tree-response" id="tree-response">언제든지 고민을 말씀하세요!</div>
+        </div>
+        <div class="input-wrapper">
+            <div class="user-response" id="user-response"></div> <!-- 사용자 입력 표시 영역 -->
+            <div class="typing-preview" id="typing-preview"></div> <!-- 타이핑 미리보기 영역 -->
+            <div class="input-container">
+                <input type="text" id="user-input" class="input-box" placeholder="여기에 메시지를 입력하세요...">
+                <button class="send-button" onclick="sendMessage()">Enter</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let typingTimer;
+        const doneTypingInterval = 3000;
+        let collectedTexts = [];
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const userInput = document.getElementById("user-input");
+            const typingPreview = document.getElementById("typing-preview");
+            const treeResponse = document.getElementById("tree-response"); // 나무 응답 영역
+            const userResponse = document.getElementById("user-response"); // 사용자 입력 영역
+
+            // 입력 필드에서 타이핑 중 발생하는 이벤트
+            userInput.addEventListener("keyup", function(event) {
+                clearTimeout(typingTimer);
+
+                // 새로운 입력이 시작될 때 user-response 내용을 초기화
+                if (collectedTexts.length === 0) {
+                    userResponse.innerText = ""; // 사용자 입력 표시 영역 초기화
+                }
+
+                // 현재 입력값을 실시간으로 타이핑 미리보기 텍스트에 표시
+                typingPreview.innerText = userInput.value;
+
+                // 사용자가 Enter 키를 눌렀을 때
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    let text = userInput.value.trim();
+                    if (text.length > 0) {
+                        collectedTexts.push(text);
+                        userResponse.innerText += `${text}\n`; // 기존 내용에 새로운 입력을 개행하여 추가
+                        userInput.value = '';  // 입력 필드 초기화
+                        typingPreview.innerText = '';  // 타이핑 미리보기 초기화
+                    }
+                }
+
+                // 타이핑을 멈추었을 때 3초간 대기 후 서버로 전송
+                typingTimer = setTimeout(doneTyping, doneTypingInterval);
+            });
+
+
+            // 사용자가 타이핑을 멈추었을 때 서버로 요청을 보냄
+            function doneTyping() {
+                if (collectedTexts.length > 0) {
+                    let combinedText = collectedTexts.join(" ");
+                    sendMessage(combinedText);
+                    collectedTexts = [];  // 수집한 텍스트 배열 초기화
+                }
+                typingPreview.innerText = '';  // 타이핑 미리보기 초기화
+            }
+
+            // 서버로 메시지 전송
+            async function sendMessage(message) {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                treeResponse.innerText = `${data.response}`; // 나무의 응답을 tree-response에 표시
+
+                // 대화 기록 업데이트
+                let fruitList = document.getElementById('fruit-list');
+                fruitList.innerHTML = '';
+                data.fruits.forEach(fruit => {
+                    fruitList.innerHTML += `<li>Fruit ${fruit.id}</li>`;
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
