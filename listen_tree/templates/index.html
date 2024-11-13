@@ -35,6 +35,24 @@
             width: 30px;
             height: 36px;
         }
+        .progress-bar-container {
+            width: 70%;
+            height: 15px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px auto;
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #76c7c0;
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
 
         .icons {
             position: absolute;
@@ -50,12 +68,22 @@
             margin-bottom: 10px;
         }
         .tree {
+            position: relative;
             width: 100%;
             margin-top: 80px;
             text-align: center;
         }
         .tree img {
             width: 50%;
+        }
+        .face-img {
+            position: absolute;
+            width: 30px;    /* 표정 이미지를 적절한 크기로 설정 */
+            height: 30px;
+            top: 50%;      /* 나무 얼굴 위치에 맞게 조정 (예시) */
+            left: 52%;     /* 나무 얼굴 중앙에 맞춤 */
+            transform: translate(-50%, -50%); /* 이미지 중심을 기준으로 위치 조정 */
+            object-fit: contain; /* 이미지 비율 유지 */
         }
         .response {
             background-color: white;
@@ -74,6 +102,30 @@
             display: inline-block;
             color: green;
             text-align: center;
+            height: 50px;
+            overflow: scroll;
+        }
+        .fruit-img {
+            position: absolute;     /* 나무 이미지 위에 겹쳐서 표시 */
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+        .fruit1 {
+            top: 20%;
+            left: 40%;
+            transform: translate(-50%, -50%);
+        }
+        .fruit2 {
+            top: 25%;
+            left: 60%;
+            transform: translate(-50%, -50%);
+        }
+
+        .fruit3 {
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         .user-response {
             background-color: #f1f1f1;
@@ -129,6 +181,9 @@
 </head>
 <body>
     <div class="app-container">
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
         <div class="setting-icon">
             <img src="/static/icons/settings.png" alt="Settings" class="icon">
         </div>
@@ -137,7 +192,11 @@
             <img src="/static/icons/storage.png" alt="보관함" class="icon">
         </div>
         <div class="tree">
-            <img src="/static/face/tree_def.png" alt="Tree">
+            <img src="/static/tree_norm.png" alt="Tree">
+            <img src="" alt="FaceImg" class="face-img" id="face">
+            <img src="/static/fruit/fruit_0.png" alt="Fruit1" class="fruit-img fruit1">
+            <img src="/static/fruit/fruit_0.png" alt="Fruit2" class="fruit-img fruit2">
+            <img src="/static/fruit_bad/b_fruit_0.png" alt="Fruit3" class="fruit-img fruit3">
             <div class="tree-response" id="tree-response">언제든지 고민을 말씀하세요!</div>
         </div>
         <div class="input-wrapper">
@@ -160,6 +219,9 @@
             const typingPreview = document.getElementById("typing-preview");
             const treeResponse = document.getElementById("tree-response"); // 나무 응답 영역
             const userResponse = document.getElementById("user-response"); // 사용자 입력 영역
+            const faceImg = document.getElementById('face');
+
+            faceImg.src = "/static/face/face_neutral.png";
 
             // 입력 필드에서 타이핑 중 발생하는 이벤트
             userInput.addEventListener("keyup", function(event) {
@@ -199,9 +261,31 @@
                 }
                 typingPreview.innerText = '';  // 타이핑 미리보기 초기화
             }
+            let currentPromptCount = 0; // 현재 프롬프트 수
+            const stageThresholds = [10, 30, 60, 100, 150]; // 각 단계별 프롬프트 목표
+            const progressBar = document.getElementById("progress-bar");
+
+            function updateProgressBar() {
+                currentPromptCount += 1;
+
+                // 현재 단계를 결정
+                let stageIndex = stageThresholds.findIndex(threshold => currentPromptCount < threshold);
+                if (stageIndex === -1) stageIndex = stageThresholds.length - 1;
+
+                // 현재 단계의 시작 프롬프트 수와 목표 프롬프트 수
+                const prevThreshold = stageIndex > 0 ? stageThresholds[stageIndex - 1] : 0;
+                const currentThreshold = stageThresholds[stageIndex];
+
+                // 현재 단계에서의 진행률 계산
+                const progressPercentage = ((currentPromptCount - prevThreshold) / (currentThreshold - prevThreshold)) * 100;
+
+                // 프로그레스 바 너비 업데이트
+                progressBar.style.width = `${progressPercentage}%`;
+            }
 
             // 서버로 메시지 전송
             async function sendMessage(message) {
+                // 사용자 입력을 서버로 보내기
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -210,7 +294,17 @@
 
                 const data = await response.json();
                 treeResponse.innerText = `${data.response}`; // 나무의 응답을 tree-response에 표시
+                // 감정 분석 요청 추가
+                const emotionResponse = await fetch('/analyze_emotion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
 
+                const emotionData = await emotionResponse.json();
+                updateFaceImage(emotionData.emotion);
+
+                updateProgressBar();
                 // 대화 기록 업데이트
                 let fruitList = document.getElementById('fruit-list');
                 fruitList.innerHTML = '';
@@ -218,6 +312,21 @@
                     fruitList.innerHTML += `<li>Fruit ${fruit.id}</li>`;
                 });
             }
+            // 표정 업데이트 함수 분리
+            function updateFaceImage(emotion) {
+                // 감정에 맞는 표정으로 변경
+                if (emotion) {
+                    faceImg.src = `/static/face/face_${emotion}.png`;
+                } else {
+                    faceImg.src = "/static/face/face_neutral.png"; // 감정이 없을 때 기본 표정
+                }
+
+                // 일정 시간 후 기본 표정으로 되돌리기
+                setTimeout(() => {
+                    faceImg.src = "/static/face/face_neutral.png";
+                }, 3000); // 3초 후 기본 표정으로 돌아감
+            }
+
         });
     </script>
 

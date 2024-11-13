@@ -2,11 +2,12 @@ from flask import Flask, render_template, request, jsonify
 from openai import OpenAI
 import os
 
+
 # Flask 앱 생성
 app = Flask(__name__)
 
 # OpenAI API 키 설정
-os.environ["OPENAI_API_KEY"] = "your-api-key"
+os.environ["OPENAI_API_KEY"] = "api-key"
 
 model = "gpt-4o-mini"
 client = OpenAI(
@@ -43,8 +44,18 @@ def generate_response(user_input):
 
 # 나무 성장 단계 결정 함수
 def update_tree_stage(conversation_count):
-    tree_set = ["seed", "sapling", "young_tree", "mid_tree", "full_tree"]
-    return tree_set[conversation_count // 50]
+    if conversation_count < 10:
+        return "seed"
+    elif conversation_count < 30:
+        return "sapling"
+    elif conversation_count < 60:
+        return "small_tree"
+    elif conversation_count < 100:
+        return "large_tree"
+    elif conversation_count < 150:
+        return "fruit_tree"
+    else:
+        return 'end'
 
 
 # 열매 요약 기능 구현 (최근 대화 내용을 요약)
@@ -70,6 +81,30 @@ def summarize_conversation(conversations):
     except Exception as e:
         return f"Error: {str(e)}"
 
+def emotion_recognition(user_input):
+    # GPT 모델에 입력할 프롬프트 정의
+    prompt = f"""
+    The following is a sentence: "{user_input}"
+    Please determine the emotion expressed in this sentence. Possible emotions are:
+    [angry, sad, happy, neutral, surprise, worry]
+
+    Return only the emotion label.
+    """
+
+    # OpenAI API 요청
+    response = client.chat.completions.create(
+        model=model,  # 또는 gpt-4
+        messages=[
+            {"role": "system", "content": "You are an assistant that labels emotions."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=10  # 감정 라벨만 반환할 것이므로 짧게 설정
+    )
+
+    # 응답에서 감정 라벨 추출.choices[0].message.content.strip()
+    emotion = response.choices[0].message.content.strip()
+    return emotion
+
 # 라우트 및 로직 설정
 @app.route('/')
 def index():
@@ -87,14 +122,35 @@ def chat():
     user_data["conversation_count"] += 1
     user_data["tree_stage"] = update_tree_stage(user_data["conversation_count"])
 
-    # 요약 생성 코드 (50회마다 요약)
-    if user_data["conversation_count"] % 50 == 0:
-        last_5_user_messages = [{"user": entry['user']} for entry in user_data["chat_history"][-5:]]
-        fruit_summary = summarize_conversation(last_5_user_messages)
+    # 열매 나무가 완전히 성장한 후 (end 상태) 열매 수확 및 초기화
+    if user_data["tree_stage"] == "end":
+        # 첫 번째 열매 (0~49까지의 대화 요약)
+        first_fruit_summary = summarize_conversation(
+            [{"user": entry['user']} for entry in user_data["chat_history"][:50]])
         user_data["fruit"].append({
             "id": len(user_data["fruit"]) + 1,
-            "summary": fruit_summary  # 요약된 텍스트
+            "summary": first_fruit_summary
         })
+
+        # 두 번째 열매 (50~99까지의 대화 요약)
+        second_fruit_summary = summarize_conversation(
+            [{"user": entry['user']} for entry in user_data["chat_history"][50:100]])
+        user_data["fruit"].append({
+            "id": len(user_data["fruit"]) + 1,
+            "summary": second_fruit_summary
+        })
+
+        # 세 번째 열매 (100~149까지의 대화 요약)
+        third_fruit_summary = summarize_conversation(
+            [{"user": entry['user']} for entry in user_data["chat_history"][100:150]])
+        user_data["fruit"].append({
+            "id": len(user_data["fruit"]) + 1,
+            "summary": third_fruit_summary
+        })
+
+        # 모든 열매 수확 후 초기화
+        user_data["conversation_count"] = 0
+        user_data["tree_stage"] = "seed"
 
     return jsonify({"response": response, "tree_stage": user_data["tree_stage"], "fruits": user_data["fruit"], "chat_history": user_data["chat_history"]})
 
@@ -111,6 +167,14 @@ def get_fruit_summary(fruit_id):
 @app.route('/fruit', methods=['GET'])
 def get_all_fruit_summaries():
     return jsonify(user_data["fruit"])
+
+
+# 감정 분석을 수행하는 API 엔드포인트
+@app.route('/analyze_emotion', methods=['POST'])
+def analyze_emotion():
+    user_input = request.json['message']
+    emotion = emotion_recognition(user_input)
+    return jsonify({'emotion': emotion})
 
 
 if __name__ == '__main__':
