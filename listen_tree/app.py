@@ -7,12 +7,13 @@ import os
 app = Flask(__name__)
 
 # OpenAI API 키 설정
-os.environ["OPENAI_API_KEY"] = "api-key"
+os.environ["OPENAI_API_KEY"] = "api key"
 
 model = "gpt-4o-mini"
 client = OpenAI(
     api_key=os.environ["OPENAI_API_KEY"]
 )
+
 
 # 사용자 데이터 (간단한 예로 메모리에 저장)
 user_data = {
@@ -23,13 +24,22 @@ user_data = {
 }
 
 # 대화 기능 구현 (GPT 호출)
-def generate_response(user_input):
+def generate_response(user_input, model = model, client = client):
     try:
+        # 최근 대화 5개를 사용
+        conversation_history = [{"role": "user", "content": user_input}]
+        # 이전 대화가 있으면 추가
+        if len(user_data["chat_history"]) > 0:
+            for entry in user_data["chat_history"][-5:]:  # 최근 5개의 대화만 사용
+                conversation_history.append({"role": "assistant", "content": entry['bot']})
+                print(conversation_history)
         messages = [
             {"role": "system",
-             "content": "You are an empathetic AI chatbot that assists users across diverse topics, responding in Korean with a friendly and professional tone. Keep answers short, under 50 tokens, and focused on understanding and reflecting users' feelings without providing solutions."},
-            {"role": "user", "content": user_input},
+             "content": "You are a friendly chatbot who listens like a trusted friend and responds in Korean. Approach conversations warmly and supportively, offering understanding and empathy, much like a counselor, but keep the tone light and approachable.Keep answers short, under 50 tokens, and focused on understanding and reflecting users' feelings without providing solutions."},
         ]
+        messages.extend(conversation_history)
+        print(messages)
+
         answer = client.chat.completions.create(
             model=model,
             messages=messages,
@@ -175,7 +185,6 @@ def analyze_emotion():
     user_input = request.json['message']
     emotion = emotion_recognition(user_input)
     return jsonify({'emotion': emotion})
-
 
 if __name__ == '__main__':
     app.run(debug=True)

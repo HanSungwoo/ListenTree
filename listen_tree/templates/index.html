@@ -78,9 +78,9 @@
         }
         .face-img {
             position: absolute;
-            width: 30px;    /* 표정 이미지를 적절한 크기로 설정 */
-            height: 30px;
-            top: 50%;      /* 나무 얼굴 위치에 맞게 조정 (예시) */
+            width: 25px;    /* 표정 이미지를 적절한 크기로 설정 */
+            height: 25px;
+            top: 52%;      /* 나무 얼굴 위치에 맞게 조정 (예시) */
             left: 52%;     /* 나무 얼굴 중앙에 맞춤 */
             transform: translate(-50%, -50%); /* 이미지 중심을 기준으로 위치 조정 */
             object-fit: contain; /* 이미지 비율 유지 */
@@ -192,11 +192,12 @@
             <img src="/static/icons/storage.png" alt="보관함" class="icon">
         </div>
         <div class="tree">
-            <img src="/static/tree_norm.png" alt="Tree">
+            <img src="/static/tree/seed.png" alt="Tree">
             <img src="" alt="FaceImg" class="face-img" id="face">
-            <img src="/static/fruit/fruit_0.png" alt="Fruit1" class="fruit-img fruit1">
-            <img src="/static/fruit/fruit_0.png" alt="Fruit2" class="fruit-img fruit2">
-            <img src="/static/fruit_bad/b_fruit_0.png" alt="Fruit3" class="fruit-img fruit3">
+            <img src="/static/fruit/fruit_0.png" alt="Fruit1" class="fruit-img fruit1" id="fruit1" style="display: none;">
+            <img src="/static/fruit/fruit_0.png" alt="Fruit2" class="fruit-img fruit2" id="fruit2" style="display: none;">
+            <img src="/static/fruit_bad/b_fruit_0.png" alt="Fruit3" class="fruit-img fruit3" id="fruit3" style="display: none;">
+
             <div class="tree-response" id="tree-response">언제든지 고민을 말씀하세요!</div>
         </div>
         <div class="input-wrapper">
@@ -211,7 +212,7 @@
 
     <script>
         let typingTimer;
-        const doneTypingInterval = 3000;
+        const doneTypingInterval = 1000;
         let collectedTexts = [];
 
         document.addEventListener("DOMContentLoaded", function() {
@@ -283,35 +284,55 @@
                 progressBar.style.width = `${progressPercentage}%`;
             }
 
-            // 서버로 메시지 전송
             async function sendMessage(message) {
-                // 사용자 입력을 서버로 보내기
-                const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
-                });
+            // 사용자 입력을 서버로 보내기
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
 
-                const data = await response.json();
-                treeResponse.innerText = `${data.response}`; // 나무의 응답을 tree-response에 표시
-                // 감정 분석 요청 추가
-                const emotionResponse = await fetch('/analyze_emotion', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
-                });
+            const data = await response.json();
+            treeResponse.innerText = `${data.response}`;
 
-                const emotionData = await emotionResponse.json();
-                updateFaceImage(emotionData.emotion);
+            // 나무 성장 상태에 따른 이미지 업데이트
+            const treeStage = data.tree_stage;
+            const treeImg = document.querySelector('.tree img'); // 나무 이미지 요소 가져오기
+            treeImg.src = `/static/tree/${treeStage}.png`; // 나무 이미지 변경
+            // tree_stage가 "end"일 때만 열매 표시
+            const fruit1 = document.getElementById('fruit1');
+            const fruit2 = document.getElementById('fruit2');
+            const fruit3 = document.getElementById('fruit3');
 
-                updateProgressBar();
-                // 대화 기록 업데이트
+            if (treeStage === "end") {
+                fruit1.style.display = "block";
+                fruit2.style.display = "block";
+                fruit3.style.display = "block";
+            } else {
+                fruit1.style.display = "none";
+                fruit2.style.display = "none";
+                fruit3.style.display = "none";
+            }
+            // tree_stage가 "end"인 경우에만 열매 업데이트
+            if (treeStage === "end") {
                 let fruitList = document.getElementById('fruit-list');
-                fruitList.innerHTML = '';
+                fruitList.innerHTML = ''; // 기존 열매 내용 초기화
                 data.fruits.forEach(fruit => {
-                    fruitList.innerHTML += `<li>Fruit ${fruit.id}</li>`;
+                    fruitList.innerHTML += `<li>Fruit ${fruit.id}: ${fruit.summary}</li>`;
                 });
             }
+
+            // 감정 분석 요청 추가 및 표정 업데이트
+            const emotionResponse = await fetch('/analyze_emotion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
+            const emotionData = await emotionResponse.json();
+            updateFaceImage(emotionData.emotion);
+
+            updateProgressBar();
+        }
             // 표정 업데이트 함수 분리
             function updateFaceImage(emotion) {
                 // 감정에 맞는 표정으로 변경
