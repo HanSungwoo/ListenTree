@@ -1,7 +1,25 @@
 from flask import Flask, render_template, request, jsonify
 from openai import OpenAI
+import json
 import os
 import pandas as pd
+
+FRUITS_FILE_PATH = "listen_tree/database/fruits.jsonl"
+FRUITS_STORAGE_FILE_PATH = "listen_tree/database/fruits_storage_items.jsonl"
+
+# JSONL 데이터를 읽어오는 함수
+def load_jsonl_data(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return [json.loads(line.strip()) for line in file if line.strip()]
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}")
+        return []
+
+# JSONL 데이터 로드
+fruits_data = load_jsonl_data(FRUITS_FILE_PATH)
+fruits_storage_data = load_jsonl_data(FRUITS_STORAGE_FILE_PATH)
+
 diary_example = pd.read_csv('listen_tree/diary.csv', header=None, names=['sentence'])
 
 # 텍스트를 분할하여 저장
@@ -10,7 +28,7 @@ diary_text = diary_example['sentence'].tolist()
 app = Flask(__name__)
 
 # OpenAI API 키 설정
-os.environ["OPENAI_API_KEY"] = "yu_key"
+os.environ["OPENAI_API_KEY"] = "--"
 
 model = "gpt-4o-mini"
 client = OpenAI(
@@ -22,7 +40,9 @@ user_data = {
     "conversation_count": 148,
     "tree_stage": "fruit_tree",
     "fruit": [],
-    "chat_history": [{"user": sentence} for sentence in diary_text]  # 문자열을 딕셔너리로 변환
+    "chat_history": [{"user": sentence} for sentence in diary_text],
+    "fruits": fruits_data,
+    "fruits_storage": fruits_storage_data,
 }
 
 # 대화 기능 구현 (GPT 호출)
@@ -127,10 +147,28 @@ def emotion_recognition(user_input):
     emotion = response.choices[0].message.content.strip()
     return emotion
 
+
 # 라우트 및 로직 설정
 @app.route('/')
 def index():
-    return render_template('index.html', tree_stage=user_data["tree_stage"], fruits=user_data["fruit"], chat_history=user_data["chat_history"])
+    return render_template(
+        'index.html',
+        tree_stage=user_data["tree_stage"],
+        fruits=user_data["fruit"],
+        chat_history=user_data["chat_history"],
+    )
+@app.route('/fruits', methods=['GET'])
+def get_fruits():
+    """도감 데이터를 반환"""
+    print("user_data['fruits'] : ", user_data["fruits"])
+    return jsonify(user_data["fruits"])
+
+@app.route('/fruits_storage', methods=['GET'])
+def get_fruits_storage():
+    """보관함 데이터를 반환"""
+    print('user_data["fruits_storage"] : ', user_data["fruits_storage"])
+    print(1)
+    return jsonify(user_data["fruits_storage"])
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -195,6 +233,15 @@ def save_fruit():
     fruit_id = request.json['fruit_id']
     # 해당 fruit_id를 보관함에 저장하는 로직을 구현
     return jsonify({"status": "saved", "fruit_id": fruit_id})
+
+@app.route('/reset_tree', methods=['POST'])
+def reset_tree():
+    # user_data 초기화
+    user_data["chat_history"] = []
+    user_data["conversation_count"] = 0
+    user_data["tree_stage"] = "seed"
+    user_data["fruit"] = []
+    return jsonify({"status": "success"})
 
 if __name__ == '__main__':
     app.run(debug=True)

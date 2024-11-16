@@ -1,0 +1,27 @@
+{"id": 1, "name": "Apple", "unlocked": true, "description": "사과는 가을에 즐겨 먹는 과일입니다.", "image": "/static/img_for_gallery/red_apple.png"}
+{"id": 2, "name": "Green Apple", "unlocked": true, "description": "초록 사과는 상큼한 맛이 특징입니다.", "image": "/static/img_for_gallery/green_apple.png"}
+{"id": 3, "name": "Orange", "unlocked": false, "image": "/static/img_for_gallery/orange.png", "description": "Orange는 맛있고 영양가 있는 과일입니다."}
+{"id": 4, "name": "Banana", "unlocked": false, "image": "/static/img_for_gallery/banana.png", "description": "Banana는 맛있고 영양가 있는 과일입니다."}
+{"id": 5, "name": "Grape", "unlocked": false, "image": "/static/img_for_gallery/grape.png", "description": "Grape는 맛있고 영양가 있는 과일입니다."}
+{"id": 6, "name": "Lemon", "unlocked": false, "image": "/static/img_for_gallery/lemon.png", "description": "Lemon는 맛있고 영양가 있는 과일입니다."}
+{"id": 7, "name": "Pineapple", "unlocked": false, "image": "/static/img_for_gallery/pineapple.png", "description": "Pineapple는 맛있고 영양가 있는 과일입니다."}
+{"id": 8, "name": "Strawberry", "unlocked": false, "image": "/static/img_for_gallery/strawberry.png", "description": "Strawberry는 맛있고 영양가 있는 과일입니다."}
+{"id": 9, "name": "Cherry", "unlocked": false, "image": "/static/img_for_gallery/cherry.png", "description": "Cherry는 맛있고 영양가 있는 과일입니다."}
+{"id": 10, "name": "Peach", "unlocked": false, "description": "Peach는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/peach.png"}
+{"id": 11, "name": "Mango", "unlocked": false, "description": "Mango는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/mango.png"}
+{"id": 12, "name": "Blueberry", "unlocked": false, "description": "Blueberry는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/blueberry.png"}
+{"id": 13, "name": "Watermelon", "unlocked": false, "description": "Watermelon는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/watermelon.png"}
+{"id": 14, "name": "Coconut", "unlocked": false, "description": "Coconut는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/coconut.png"}
+{"id": 15, "name": "Plum", "unlocked": false, "description": "Plum는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/plum.png"}
+{"id": 16, "name": "Pear", "unlocked": false, "description": "Pear는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/pear.png"}
+{"id": 17, "name": "Pomegranate", "unlocked": false, "description": "Pomegranate는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/pomegranate.png"}
+{"id": 18, "name": "Kiwi", "unlocked": false, "description": "Kiwi는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/kiwi.png"}
+{"id": 19, "name": "Dragon Fruit", "unlocked": false, "description": "Dragon Fruit는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/dragon_fruit.png"}
+{"id": 20, "name": "Lychee", "unlocked": false, "description": "Lychee는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/lychee.png"}
+{"id": 21, "name": "Raspberry", "unlocked": false, "description": "Raspberry는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/raspberry.png"}
+{"id": 22, "name": "Blackberry", "unlocked": false, "description": "Blackberry는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/blackberry.png"}
+{"id": 23, "name": "Fig", "unlocked": false, "description": "Fig는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/fig.png"}
+{"id": 24, "name": "Date", "unlocked": false, "description": "Date는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/date.png"}
+{"id": 25, "name": "Guava", "unlocked": false, "description": "Guava는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/guava.png"}
+{"id": 26, "name": "Papaya", "unlocked": false, "description": "Papaya는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/papaya.png"}
+{"id": 27, "name": "Passion Fruit", "unlocked": false, "description": "Passion Fruit는 맛있고 영양가 있는 과일입니다.", "image": "/static/img_for_gallery/passion_fruit.png"}
