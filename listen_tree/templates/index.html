@@ -208,8 +208,8 @@
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
             overflow: hidden;
-            padding-top: 30px;
         }
+
         .modal_for_fruit {
             display: none;
             position: absolute;
@@ -491,7 +491,13 @@
         </div>
         <div class="icons">
             <img src="/static/icons/book.png" alt="도감" class="icon">
-            <img src="/static/icons/storage.png" alt="보관함" class="icon" id="open-storage-button">
+            <img src="/static/icons/storage.png" alt="보관함" class="icon">
+        </div>
+        <!-- 새로운 수확 완료 모달 -->
+        <div id="completion_modal_for_fruit" class="modal_for_fruit">
+            <div class="modal_for_fruit-content">
+                <p id="completionMessage">축하합니다! 나무가 이야기를 듣고 잘 자라서 열매를 맺고 수확을 마쳤습니다. 이제 보관함에서 열매를 확인해 보세요.</p>
+            </div>
         </div>
         <div id="fruit_modal_for_fruit" class="modal_for_fruit">
             <div class="modal_for_fruit-content">
@@ -499,19 +505,24 @@
                 <img src="" alt="Fruit Image" class="fruit-img-modal_for_fruit" id="modal_for_fruit_FruitImg">
                 <p id="modal_for_fruit_FruitSummary">아직 열매가 맺히는 중이에요!</p>
                 <div class="modal_for_fruit-buttons">
-                    <img src="/static/icons/delete_button.png" id="deleteFruit" alt="삭제 버튼" class="modal-img-button">
-                    <img src="/static/icons/save_button.png" id="saveFruit" alt="저장 버튼" class="modal-img-button">
+                    <img src="/static/icons/delete_button.png" id="deleteFruit" alt="삭제 버튼" class="modal_for_fruit-img-button">
+                    <img src="/static/icons/save_button.png" id="saveFruit" alt="저장 버튼" class="modal_for_fruit-img-button">
                 </div>
             </div>
         </div>
         <div class="tree">
-            <img src="/static/tree/seed.png" alt="Tree">
+            <img src="/static/tree/seed.png" alt="Tree" id = "tree">
             <img src="" alt="FaceImg" class="face-img" id="face">
             <img src="/static/fruit/fruit_0.png" alt="Fruit1" class="fruit-img fruit1" id="fruit1" style="display: none;">
             <img src="/static/fruit/fruit_0.png" alt="Fruit2" class="fruit-img fruit2" id="fruit2" style="display: none;">
             <img src="/static/fruit_bad/b_fruit_0.png" alt="Fruit3" class="fruit-img fruit3" id="fruit3" style="display: none;">
 
-            <div class="tree-response" id="tree-response">언제든지 고민을 말씀하세요!</div>
+            <div class="tree-response" id="tree-response">당신의 이야기를 듣고싶어요!</div>
+        </div>
+        <div id="seed_modal_for_fruit" class="modal_for_fruit">
+            <div class="modal_for_fruit-content">
+                <p id="seedMessage">새로운 씨앗이 심어졌어요! 이야기를 들려주세요!</p>
+            </div>
         </div>
         <div class="input-wrapper">
             <div class="user-response" id="user-response"></div> <!-- 사용자 입력 표시 영역 -->
@@ -555,6 +566,7 @@
                     <p>아직 잠금되어 있는 과일입니다</p>
                 </div>
             </div>
+
             <div id="storage-modal" class="modal">
                 <span id="close-storage-modal" style="cursor: pointer; font-size: 24px; position: absolute; top: 10px; right: 10px;">✖</span>
                 <div class="storage-container">
@@ -588,67 +600,45 @@
         const doneTypingInterval = 1000;
         let collectedTexts = [];
 
-        const fruits = [
-            { id: 1, name: 'Apple', unlocked: true, description: "사과는 가을에 즐겨 먹는 과일입니다.", image: "/static/img_for_gallery/red_apple.png" },
-            { id: 2, name: 'Green Apple', unlocked: true, description: "초록 사과는 상큼한 맛이 특징입니다.", image: "/static/img_for_gallery/green_apple.png" },
-            { id: 3, name: 'Orange', unlocked: false, image: "/static/img_for_gallery/orange.png" },
-            { id: 4, name: 'Banana', unlocked: false, image: "/static/img_for_gallery/banana.png" },
-            { id: 5, name: 'Grape', unlocked: false, image: "/static/img_for_gallery/grape.png" },
-            { id: 6, name: 'Lemon', unlocked: false, image: "/static/img_for_gallery/lemon.png" },
-            { id: 7, name: 'Pineapple', unlocked: false, image: "/static/img_for_gallery/pineapple.png" },
-            { id: 8, name: 'Strawberry', unlocked: false, image: "/static/img_for_gallery/strawberry.png" },
-            { id: 9, name: 'Cherry', unlocked: false, image: "/static/img_for_gallery/cherry.png" },
-            { id: 10, name: 'Peach', unlocked: false },
-            { id: 11, name: 'Mango', unlocked: false },
-            { id: 12, name: 'Blueberry', unlocked: false },
-            { id: 13, name: 'Watermelon', unlocked: false },
-            { id: 14, name: 'Coconut', unlocked: false },
-            { id: 15, name: 'Plum', unlocked: false },
-            { id: 16, name: 'Pear', unlocked: false },
-            { id: 17, name: 'Pomegranate', unlocked: false },
-            { id: 18, name: 'Kiwi', unlocked: false },
-            { id: 19, name: 'Dragon Fruit', unlocked: false },
-            { id: 20, name: 'Lychee', unlocked: false },
-            { id: 21, name: 'Raspberry', unlocked: false },
-            { id: 22, name: 'Blackberry', unlocked: false },
-            { id: 23, name: 'Fig', unlocked: false },
-            { id: 24, name: 'Date', unlocked: false },
-            { id: 25, name: 'Guava', unlocked: false },
-            { id: 26, name: 'Papaya', unlocked: false },
-            { id: 27, name: 'Passion Fruit', unlocked: false }
-        ];
-
-        const fruitsInStorage = [
-            { id: 1, name: 'Apple', date: '24/11/02', image: "/static/img_for_gallery/red_apple.png", summary: "열심히 해야 할 사람이 아무 일도 하지 않아 피해가 나에게 돌아왔다." },
-            { id: 2, name: 'Green Apple', date: '24/11/02', image: "/static/img_for_gallery/green_apple.png", summary: "힘든 하루였지만 끝까지 견뎠다." },
-            { id: 3, name: 'Apple', date: '24/11/02', image: "/static/img_for_gallery/red_apple.png", summary: "아침부터 밤까지 정신없이 스케줄을 마치고 몸이 안 좋다는 걸 깨달았다." },
-            { id: 4, name: 'grape', date: '24/11/08', image: "/static/img_for_gallery/grape.png", summary: "오늘은 많은 생각이 떠올랐던 하루였다." },
-            { id: 5, name: 'grape', date: '24/11/08', image: "/static/img_for_gallery/grape.png", summary: "힘든 시기를 이겨내며 성취감을 느꼈다." },
-            { id: 6, name: 'green_grape', date: '24/11/08', image: "/static/img_for_gallery/green_grape.png", summary: "여유로운 시간을 가지며 재충전했다." },
-            { id: 7, name: 'green_Pear', date: '24/11/10', image: "/static/img_for_gallery/green_Pear.png", summary: "오늘은 새로운 도전에 대한 결심을 한 날이었다." },
-            { id: 8, name: 'Pear', date: '24/11/10', image: "/static/img_for_gallery/Pear.png", summary: "오래된 목표를 되돌아보았다." },
-            { id: 9, name: 'Pear', date: '24/11/10', image: "/static/img_for_gallery/Pear.png", summary: "삶에 대한 소중함을 다시금 느낀 하루였다." },
-            { id: 10, name: 'Mango', date: '24/11/15', image: "/static/img_for_gallery/mango.png", summary: "새로운 사람을 만나 즐거운 시간을 보냈다." },
-            { id: 11, name: 'Blueberry', date: '24/11/15', image: "/static/img_for_gallery/blueberry.png", summary: "오늘은 일찍 일어나 운동을 시작했다." },
-            { id: 12, name: 'Watermelon', date: '24/11/15', image: "/static/img_for_gallery/watermelon.png", summary: "휴식을 취하며 책을 읽는 시간을 가졌다." },
-            { id: 13, name: 'Coconut', date: '24/11/18', image: "/static/img_for_gallery/coconut.png", summary: "긴 고민 끝에 결정을 내린 하루였다." },
-            { id: 14, name: 'Plum', date: '24/11/18', image: "/static/img_for_gallery/plum.png", summary: "친구와 함께 즐거운 시간을 보냈다." },
-            { id: 15, name: 'Raspberry', date: '24/11/18', image: "/static/img_for_gallery/raspberry.png", summary: "집안일을 마무리하며 하루를 보냈다." }
-        ];
+        let fruits = []; // JSON 파일에서 로드된 과일 데이터를 저장할 변수
+        let fruitsInStorage = []; // JSON 파일에서 로드된 보관함 데이터를 저장할 변수
 
         let currentPage = 1;
         const fruitsPerPage = 9;
-        const totalPages = Math.ceil(fruits.length / fruitsPerPage);
+        let totalPages = 0;
 
         let currentStoragePage = 1;
         const storageItemsPerPage = 3;
-        const totalStoragePages = Math.ceil(fruitsInStorage.length / storageItemsPerPage);
+        let totalStoragePages = 0;
+        
+        async function loadFruits() {
+            try {
+                const response = await fetch('/fruits');
+                fruits = await response.json();
+                totalPages = Math.ceil(fruits.length / fruitsPerPage);
+                renderFruits(); // 데이터 로드 후 도감 렌더링
+            } catch (error) {
+                console.error("Error loading fruits:", error);
+            }
+        }
+
+        // 보관함 데이터를 가져오기
+        async function loadFruitsStorage() {
+            try {
+                const response = await fetch('/fruits_storage');
+                fruitsInStorage = await response.json();
+                totalStoragePages = Math.ceil(fruitsInStorage.length / storageItemsPerPage);
+                renderStorageItems(); // 데이터 로드 후 보관함 렌더링
+            } catch (error) {
+                console.error("Error loading storage items:", error);
+            }
+        }
 
         document.addEventListener("DOMContentLoaded", function () {
             const openGalleryModalButton = document.querySelector(".icon[alt='도감']");
             const closeGalleryModalButton = document.getElementById("close-gallery-modal");
 
-            const openStorageModalButton = document.getElementById("open-storage-button");
+            const openStorageModalButton = document.querySelector(".icon[alt='보관함']");
             const closeStorageModalButton = document.getElementById("close-storage-modal");
 
             const overlay = document.getElementById("modal-overlay");
@@ -705,8 +695,8 @@
                 }
             });
 
-            renderFruits();
-            renderStorageItems();
+            loadFruits();
+            loadFruitsStorage(); // JSONL 데이터 로드
         });
 
         function openGalleryModal() {
@@ -766,104 +756,96 @@
         }
 
         function renderFruits() {
-            const fruitGrid = document.getElementById("fruit-grid");
-            fruitGrid.innerHTML = "";
-            const start = (currentPage - 1) * fruitsPerPage;
-            const end = start + fruitsPerPage;
-            const currentFruits = fruits.slice(start, end);
+        const fruitGrid = document.getElementById("fruit-grid");
+        fruitGrid.innerHTML = "";
+        const start = (currentPage - 1) * fruitsPerPage;
+        const end = start + fruitsPerPage;
+        const currentFruits = fruits.slice(start, end);
 
-            currentFruits.forEach(fruit => {
+        currentFruits.forEach(fruit => {
+            const fruitItem = document.createElement("div");
+            fruitItem.className = "fruit-item";
+
+            if (fruit.unlocked) {
+                fruitItem.innerHTML = `<img src="${fruit.image}" alt="${fruit.name}">`;
+                fruitItem.addEventListener("click", () => openFruitInfoModal(fruit));
+            } else {
+                fruitItem.innerHTML = `
+                    <div class="locked-overlay">
+                        <img src="/static/img_for_gallery/locked.png" alt="Locked">
+                    </div>
+                `;
+                fruitItem.addEventListener("click", showLockedMessage);
+            }
+
+            fruitGrid.appendChild(fruitItem);
+        });
+
+        document.getElementById("page-number").textContent = `${currentPage}/${totalPages}`;
+    }
+
+    function renderStorageItems() {
+        const storageGrid = document.getElementById("storage-grid");
+        storageGrid.innerHTML = "";
+
+        const groupedByDate = {};
+        fruitsInStorage.forEach(fruit => {
+            if (!groupedByDate[fruit.date]) {
+                groupedByDate[fruit.date] = [];
+            }
+            groupedByDate[fruit.date].push(fruit);
+        });
+
+        const groupedDates = Object.keys(groupedByDate).map(date => ({
+            date,
+            fruits: groupedByDate[date]
+        }));
+
+        const startIndex = (currentStoragePage - 1) * storageItemsPerPage;
+        const endIndex = startIndex + storageItemsPerPage;
+        const currentGroups = groupedDates.slice(startIndex, endIndex);
+
+        currentGroups.forEach(group => {
+            const storageBox = document.createElement("div");
+            storageBox.className = "storage-box";
+
+            const dateElement = document.createElement("div");
+            dateElement.className = "storage-date";
+            dateElement.textContent = group.date;
+            storageBox.appendChild(dateElement);
+
+            const fruitContainer = document.createElement("div");
+            fruitContainer.className = "fruit-container";
+            fruitContainer.style.display = "flex";
+            fruitContainer.style.justifyContent = group.fruits.length === 2 ? "flex-start" : "space-between";
+
+            group.fruits.slice(0, 3).forEach(fruit => {
                 const fruitItem = document.createElement("div");
                 fruitItem.className = "fruit-item";
 
-                if (fruit.unlocked) {
-                    fruitItem.innerHTML = `<img src="${fruit.image}" alt="${fruit.name}">`;
-                    fruitItem.addEventListener("click", () => openFruitInfoModal(fruit));
-                } else {
-                    fruitItem.innerHTML = `
-                        <div class="locked-overlay">
-                            <img src="/static/img_for_gallery/locked.png" alt="Locked">
-                        </div>
-                    `;
-                    fruitItem.addEventListener("click", showLockedMessage);
-                }
+                const fruitImage = document.createElement("img");
+                fruitImage.src = fruit.image;
+                fruitImage.alt = fruit.name;
+                fruitImage.addEventListener("click", () => openFruitSummaryModal(fruit));
 
-                fruitGrid.appendChild(fruitItem);
+                fruitItem.appendChild(fruitImage);
+                fruitContainer.appendChild(fruitItem);
             });
 
-            document.getElementById("page-number").textContent = `${currentPage}/${totalPages}`;
-        }
+            for (let i = group.fruits.length; i < 3; i++) {
+                const emptyItem = document.createElement("div");
+                emptyItem.className = "fruit-item";
+                fruitContainer.appendChild(emptyItem);
+            }
 
-        function renderStorageItems() {
-            const storageGrid = document.getElementById("storage-grid");
-            storageGrid.innerHTML = "";
+            storageBox.appendChild(fruitContainer);
+            storageGrid.appendChild(storageBox);
+        });
 
-            // 날짜별로 그룹화
-            const groupedByDate = {};
-            fruitsInStorage.forEach(fruit => {
-                if (!groupedByDate[fruit.date]) {
-                    groupedByDate[fruit.date] = [];
-                }
-                groupedByDate[fruit.date].push(fruit);
-            });
+        document.getElementById("storage-page-number").textContent = `${currentStoragePage}/${Math.ceil(groupedDates.length / storageItemsPerPage)}`;
+    }
 
-            // 날짜별로 배열 생성
-            const groupedDates = Object.keys(groupedByDate).map(date => ({
-                date,
-                fruits: groupedByDate[date]
-            }));
 
-            // 현재 페이지의 날짜 그룹 선택
-            const startIndex = (currentStoragePage - 1) * storageItemsPerPage;
-            const endIndex = startIndex + storageItemsPerPage;
-            const currentGroups = groupedDates.slice(startIndex, endIndex);
-
-            currentGroups.forEach(group => {
-                const storageBox = document.createElement("div");
-                storageBox.className = "storage-box";
-
-                // 날짜 표시
-                const dateElement = document.createElement("div");
-                dateElement.className = "storage-date";
-                dateElement.textContent = group.date;
-                storageBox.appendChild(dateElement);
-
-                // 과일 컨테이너 생성
-                const fruitContainer = document.createElement("div");
-                fruitContainer.className = "fruit-container";
-                fruitContainer.style.display = "flex";
-                fruitContainer.style.justifyContent = group.fruits.length === 2 ? "flex-start" : "space-between";
-
-                // 과일 추가
-                group.fruits.slice(0, 3).forEach(fruit => {
-                    const fruitItem = document.createElement("div");
-                    fruitItem.className = "fruit-item";
-
-                    const fruitImage = document.createElement("img");
-                    fruitImage.src = fruit.image;
-                    fruitImage.alt = fruit.name;
-                    fruitImage.addEventListener("click", () => openFruitSummaryModal(fruit));
-
-                    fruitItem.appendChild(fruitImage);
-                    fruitContainer.appendChild(fruitItem);
-                });
-
-                // 부족한 칸 채우기
-                for (let i = group.fruits.length; i < 3; i++) {
-                    const emptyItem = document.createElement("div");
-                    emptyItem.className = "fruit-item";
-                    fruitContainer.appendChild(emptyItem);
-                }
-
-                storageBox.appendChild(fruitContainer);
-                storageGrid.appendChild(storageBox);
-            });
-
-            // 페이지 번호 업데이트
-            document.getElementById("storage-page-number").textContent = `${currentStoragePage}/${Math.ceil(groupedDates.length / storageItemsPerPage)}`;
-        }
-
-    
         // 기존 기능 관련 코드 (타이핑 감지 및 프로그레스 바 업데이트)
         document.addEventListener("DOMContentLoaded", function() {
             const userInput = document.getElementById("user-input");
@@ -902,7 +884,7 @@
             }
 
             // 모달 닫기
-            closeModal.onclick = function() {
+            close_modal_for_fruit.onclick = function() {
                 fruit_modal_for_fruit.style.display = "none";
             }
 
@@ -1018,88 +1000,100 @@
                         showFruit_modal_for_fruit(fruit.id, fruit.summary);
                     };
                 });
-                showHarvestSequence();
+
             } else {
                 treeImg.src = `/static/tree/${treeStage}.png`;
             }
-            function showHarvestSequence() {
-                const harvestMessages = [
-                    {
-                        message: "축하합니다! 나무가 이야기를 듣고 잘 자라서 열매를 맺고 수확을 마쳤습니다. 이제 보관함에서 열매를 확인해 보세요.",
-                        imgSrc: "/static/text_box/collect_event.png"
-                    },
-                    {
-                        message: "",
-                        imgSrc: "/static/path/to/image2.png"
-                    },
-                    {
-                        message: "다음 나무에는 어떤 열매가 열릴까요? 새로운 씨앗을 심어드릴게요!",
-                        imgSrc: "/static/text_box/collect_event.png"
-                    },
-                    {
-                        message: "",
-                        imgSrc: "/static/path/to/image4.png"
-                    }
-                ];
+            function showCompletion_modal_for_fruit(message, callback) {
+                const completion_modal_for_fruit = document.getElementById("completion_modal_for_fruit");
+                const completionMessage = document.getElementById("completionMessage");
 
-                let currentStep = 0;
+                // 메시지를 설정하고 모달 표시
+                completionMessage.innerText = message;
+                completion_modal_for_fruit.style.display = "block";
 
-                function showNextStep() {
-                    if (currentStep < harvestMessages.length) {
-                        const modal_for_fruit_Content = harvestMessages[currentStep];
-                        modal_for_fruit_FruitImg.src = modal_for_fruit_Content.imgSrc;
-                        modal_for_fruit_FruitSummary.innerText = modal_for_fruit_Content.message;
-                        fruit_modal_for_fruit.style.display = "block";
-
-                        setTimeout(() => {
-                            fruit_modal_for_fruit.style.display = "none";
-                            currentStep++;
-                            showNextStep();
-                        }, 2000); // 2초 후 다음 단계로 전환
-                    } else {
-                        resetTreeToSeedStage(); // 모든 단계가 끝나면 seed 단계로 재설정
-                    }
-                }
-
-                showNextStep();
+                // 클릭 시 모달을 닫고 콜백 실행
+                completion_modal_for_fruit.onclick = function () {
+                    completion_modal_for_fruit.style.display = "none"; // 모달 숨기기
+                    if (callback) callback(); // 콜백 함수 실행
+                };
             }
-            // 모든 열매를 수확했을 때 이 함수를 호출
-            function resetTreeToSeedStage() {
-                user_data.tree_stage = "seed";
-                document.querySelector('.tree img').src = "/static/tree/seed.png";
-                // 필요 시 추가 초기화 로직
+            function showSeed_modal_for_fruit(message, callback) {
+                const seed_modal_for_fruit = document.getElementById("seed_modal_for_fruit");
+                const seedMessage = document.getElementById("seedMessage");
+
+                // 메시지를 설정하고 모달 표시
+                seedMessage.innerText = message;
+                seed_modal_for_fruit.style.display = "block";
+
+                // 클릭 시 모달을 닫고 콜백 실행
+                seed_modal_for_fruit.onclick = function () {
+                    seed_modal_for_fruit.style.display = "none"; // 모달 숨기기
+                    if (callback) callback(); // 콜백 함수 실행
+                };
             }
 
-            // 열매 수확 상태를 추적하는 변수
+            function handleAllFruitsCollected() {
+                showCompletion_modal_for_fruit(
+                    "축하합니다! 나무가 이야기를 듣고 잘 자라서 열매를 맺고 수확을 마쳤습니다. 이제 보관함에서 열매를 확인해 보세요.",
+                    function () {
+                        // "축하합니다~" 모달을 닫은 후 화면을 비움
+                        resetTreeToEmptyStage();
+                    }
+                );
+            }
+
+
+            // 나무와 대화 내용을 초기화 (배경만 남김)
+            function resetTreeToEmptyStage() {
+                const appContainer = document.querySelector(".app-container");
+
+                // 나무와 텍스트, 표정을 숨김
+
+                // 빈 화면 클릭 이벤트 등록
+                appContainer.onclick = function () {
+                    appContainer.onclick = null; // 클릭 이벤트 제거
+                    showSeed_modal_for_fruit("새로운 씨앗이 심어졌어요! 이야기를 들려주세요!", resetTreeToSeedStage);
+                };
+            }
+
             let harvestedFruitsCount = 0; // 수확된 열매 수
-            let totalFruits = 3; // 전체 열매 개수 (수정 가능)
-            let isAllFruitsHarvested = false; // 모든 열매가 수확되었는지 여부
+            const totalFruits = 3; // 전체 열매 개수
 
-            // 열매가 모두 수확되고 요약이 완료되었는지 확인하는 함수
-            function checkHarvestAndSummaryCompletion() {
-                if (isAllFruitsHarvested && fruitSummariesCompleted === totalFruits) {
-                    console.log("All fruits harvested and summaries completed. Showing harvest sequence.");
-                    showHarvestSequence(); // 모든 열매가 수확 완료된 후에만 호출
-                }
-            }
 
-            // 열매 수확 함수
-            function harvestFruit() {
-                harvestedFruitsCount++;
-                if (harvestedFruitsCount === totalFruits) {
-                    isAllFruitsHarvested = true; // 모든 열매가 수확된 상태로 표시
-                    checkHarvestAndSummaryCompletion();
-                }
+            // 나무를 seed 상태로 초기화
+            function resetTreeToSeedStage() {
+                const treeResponse = document.getElementById("tree-response");
+
+                // 나무, 표정, 텍스트를 초기 상태로 설정
+                treeImg.src = '/static/tree/seed.png';
+
+                progressBar.style.width = "0%";
+                currentPromptCount = 0;
+
+                treeResponse.innerText = "당신의 이야기를 듣고싶어요!";
+
+                // 서버에 초기화 요청
+                fetch('/reset_tree', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                });
             }
 
             // 열매 삭제
             deleteFruit.onclick = function() {
                 if (currentFruitElement && currentFruitElement.style.display !== "none") {
                     currentFruitElement.style.display = "none";
-                    alert("열매가 삭제되었습니다.");
                     fruit_modal_for_fruit.style.display = "none";
 
-                    harvestFruit(); // 수확된 열매 수 증가
+                    if (harvestedFruitsCount + 1 === totalFruits) {
+                        //showHarvestSequence(); // 마지막 열매를 수확하면 진행
+                        handleAllFruitsCollected();
+                    } else {
+                        harvestedFruitsCount++; // 수확된 열매 수 증가
+                    }
                 }
             }
 
@@ -1107,20 +1101,16 @@
             saveFruit.onclick = function() {
                 if (currentFruitElement && currentFruitElement.style.display !== "none") {
                     currentFruitElement.style.display = "none";
-                    alert("열매가 보관함에 저장되었습니다.");
                     fruit_modal_for_fruit.style.display = "none";
 
-                    harvestFruit(); // 수확된 열매 수 증가
+                    if (harvestedFruitsCount + 1 === totalFruits) {
+                        //showHarvestSequence(); // 마지막 열매를 수확하면 진행
+                        handleAllFruitsCollected();
+                    } else {
+                        harvestedFruitsCount++; // 수확된 열매 수 증가
+                    }
                 }
             }
-
-            // 열매 요약 완료 후 호출되는 함수
-            function markFruitSummaryComplete() {
-                fruitSummariesCompleted++;
-                console.log(`Fruit summary completed. Current completed count: ${fruitSummariesCompleted}`);
-                checkHarvestAndSummaryCompletion(); // 요약이 완료될 때마다 수확 완료 여부 확인
-            }
-
 
 
             // 감정 분석 요청 추가 및 표정 업데이트
@@ -1151,6 +1141,5 @@
 
         });
     </script>
-
 </body>
 </html>

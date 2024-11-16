@@ -1,0 +1,15 @@
+{ "id": 1, "name": "red_apple", "date": "24/11/02", "image": "/static/img_for_gallery/red_apple.png", "summary": "열심히 해야 할 사람이 아무 일도 하지 않아 피해가 나에게 돌아왔다." }
+{ "id": 2, "name": "green_apple", "date": "24/11/02", "image": "/static/img_for_gallery/green_apple.png", "summary": "힘든 하루였지만 끝까지 견뎠다." }
+{ "id": 3, "name": "red_apple", "date": "24/11/02", "image": "/static/img_for_gallery/red_apple.png", "summary": "아침부터 밤까지 정신없이 스케줄을 마치고 몸이 안 좋다는 걸 깨달았다." }
+{ "id": 4, "name": "grape", "date": "24/11/08", "image": "/static/img_for_gallery/grape.png", "summary": "오늘은 많은 생각이 떠올랐던 하루였다." }
+{ "id": 5, "name": "grape", "date": "24/11/08", "image": "/static/img_for_gallery/grape.png", "summary": "힘든 시기를 이겨내며 성취감을 느꼈다." }
+{ "id": 6, "name": "green_grape", "date": "24/11/08", "image": "/static/img_for_gallery/green_grape.png", "summary": "여유로운 시간을 가지며 재충전했다." }
+{ "id": 7, "name": "green_Pear", "date": "24/11/10", "image": "/static/img_for_gallery/green_Pear.png", "summary": "오늘은 새로운 도전에 대한 결심을 한 날이었다." }
+{ "id": 8, "name": "Pear", "date": "24/11/10", "image": "/static/img_for_gallery/Pear.png", "summary": "오래된 목표를 되돌아보았다." }
+{ "id": 9, "name": "Pear", "date": "24/11/10", "image": "/static/img_for_gallery/Pear.png", "summary": "삶에 대한 소중함을 다시금 느낀 하루였다." }
+{ "id": 10, "name": "mango", "date": "24/11/15", "image": "/static/img_for_gallery/mango.png", "summary": "새로운 사람을 만나 즐거운 시간을 보냈다." }
+{ "id": 11, "name": "blueberry", "date": "24/11/15", "image": "/static/img_for_gallery/blueberry.png", "summary": "오늘은 일찍 일어나 운동을 시작했다." }
+{ "id": 12, "name": "watermelon", "date": "24/11/15", "image": "/static/img_for_gallery/watermelon.png", "summary": "휴식을 취하며 책을 읽는 시간을 가졌다." }
+{ "id": 13, "name": "coconut", "date": "24/11/18", "image": "/static/img_for_gallery/coconut.png", "summary": "긴 고민 끝에 결정을 내린 하루였다." }
+{ "id": 14, "name": "plum", "date": "24/11/18", "image": "/static/img_for_gallery/plum.png", "summary": "친구와 함께 즐거운 시간을 보냈다." }
+{ "id": 15, "name": "raspberry", "date": "24/11/18", "image": "/static/img_for_gallery/raspberry.png", "summary": "집안일을 마무리하며 하루를 보냈다." }
