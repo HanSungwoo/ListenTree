@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도감 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        .gallery-container {
+            width: 375px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .fruit-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .fruit-item {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+        }
+        .fruit-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+        }
+        .pagination {
+            margin-top: 10px;
+        }
+        .pagination button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 2px solid #ccc;
+            z-index: 1000;
+            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .modal.show {
+            display: block;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .modal-overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="gallery-container">
+        <h2>도감</h2>
+        <div class="fruit-grid" id="fruit-grid">
+            <!-- 과일 아이템이 여기 렌더링됩니다. -->
+        </div>
+        <div class="pagination">
+            <button id="prev-page">이전</button>
+            <span id="page-number">1/3</span>
+            <button id="next-page">다음</button>
+        </div>
+    </div>
+
+    <div id="fruit-modal" class="modal">
+        <span id="close-modal" style="cursor: pointer;">✖</span>
+        <h3 id="fruit-name"></h3>
+        <p id="fruit-description"></p>
+    </div>
+    <div id="modal-overlay" class="modal-overlay"></div>
+
+    <script>
+        const fruits = {{ fruits|tojson }};
+        let currentPage = 1;
+        const fruitsPerPage = 6;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            renderFruits();
+
+            document.getElementById("next-page").addEventListener("click", () => {
+                currentPage = Math.min(currentPage + 1, Math.ceil(fruits.length / fruitsPerPage));
+                renderFruits();
+            });
+
+            document.getElementById("prev-page").addEventListener("click", () => {
+                currentPage = Math.max(currentPage - 1, 1);
+                renderFruits();
+            });
+        });
+
+        function renderFruits() {
+            const fruitGrid = document.getElementById("fruit-grid");
+            fruitGrid.innerHTML = "";
+            const start = (currentPage - 1) * fruitsPerPage;
+            const end = start + fruitsPerPage;
+            const currentFruits = fruits.slice(start, end);
+
+            currentFruits.forEach(fruit => {
+                const fruitItem = document.createElement("div");
+                fruitItem.className = "fruit-item";
+                fruitItem.innerHTML = fruit.unlocked
+                    ? `<img src="/static/fruit/fruit_${fruit.id}.png" alt="${fruit.name}">`
+                    : `<div class="locked-overlay"><img src="/static/icons/lock.png" alt="Locked"></div>`;
+                
+                fruitItem.addEventListener("click", () => {
+                    if (fruit.unlocked) {
+                        showModal(fruit);
+                    }
+                });
+
+                fruitGrid.appendChild(fruitItem);
+            });
+
+            document.getElementById("page-number").textContent = `${currentPage}/3`;
+        }
+
+        function showModal(fruit) {
+            document.getElementById("fruit-name").textContent = fruit.name;
+            document.getElementById("fruit-description").textContent = fruit.description;
+            document.getElementById("fruit-modal").classList.add("show");
+            document.getElementById("modal-overlay").classList.add("show");
+        }
+
+        document.getElementById("close-modal").addEventListener("click", closeModal);
+        document.getElementById("modal-overlay").addEventListener("click", closeModal);
+
+        function closeModal() {
+            document.getElementById("fruit-modal").classList.remove("show");
+            document.getElementById("modal-overlay").classList.remove("show");
+        }
+    </script>
+</body>
+</html>
