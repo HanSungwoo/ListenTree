@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for
 from openai import OpenAI
 import json
 import os
 import pandas as pd
+import random
 
 FRUITS_FILE_PATH = "listen_tree/database/fruits.jsonl"
 FRUITS_STORAGE_FILE_PATH = "listen_tree/database/fruits_storage_items.jsonl"
+
+fruits_items = ["apple", "grape", "pear"]
 
 # JSONL 데이터를 읽어오는 함수
 def load_jsonl_data(file_path):
@@ -28,7 +31,7 @@ diary_text = diary_example['sentence'].tolist()
 app = Flask(__name__)
 
 # OpenAI API 키 설정
-os.environ["OPENAI_API_KEY"] = "--"
+os.environ["OPENAI_API_KEY"] = "x"
 
 model = "gpt-4o-mini"
 client = OpenAI(
@@ -44,6 +47,23 @@ user_data = {
     "fruits": fruits_data,
     "fruits_storage": fruits_storage_data,
 }
+
+def sentiment_classification(summary):
+    prompt = f"""
+    The following is a summary of user messages: "{summary}"
+    Please classify the sentiment of this summary as either 'positive' or 'negative'.
+
+    Respond only with 'positive' or 'negative'.
+    """
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": "You are an assistant that classifies sentiment."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=10
+    )
+    return response.choices[0].message.content.strip().lower()
 
 # 대화 기능 구현 (GPT 호출)
 def generate_response(user_input, model = model, client = client):
@@ -147,6 +167,24 @@ def emotion_recognition(user_input):
     emotion = response.choices[0].message.content.strip()
     return emotion
 
+@app.route('/generate_fruit_images', methods=['POST'])
+def generate_fruit_images():
+    fruit_summaries = [fruit["summary"] for fruit in user_data["fruit"]]
+    results = []
+    random_fruit = random.choice(fruits_items)  # 랜덤 과일 선택
+    for summary in fruit_summaries: 
+        sentiment = sentiment_classification(summary)  # 감정 분류
+        # 감정에 따라 이미지 경로 설정
+        if sentiment == 'positive':
+            image_path = f"/static/fruit/{random_fruit}.png"
+        else:
+            image_path = f"/static/fruit_bad/{random_fruit}.png"
+
+        results.append({"summary": summary, "image_path": image_path, "sentiment": sentiment})
+    
+    print("Generated fruit images:", results)  # 데이터 확인
+    return jsonify(results)
+
 
 # 라우트 및 로직 설정
 @app.route('/')
@@ -160,14 +198,11 @@ def index():
 @app.route('/fruits', methods=['GET'])
 def get_fruits():
     """도감 데이터를 반환"""
-    print("user_data['fruits'] : ", user_data["fruits"])
     return jsonify(user_data["fruits"])
 
 @app.route('/fruits_storage', methods=['GET'])
 def get_fruits_storage():
     """보관함 데이터를 반환"""
-    print('user_data["fruits_storage"] : ', user_data["fruits_storage"])
-    print(1)
     return jsonify(user_data["fruits_storage"])
 
 @app.route('/chat', methods=['POST'])

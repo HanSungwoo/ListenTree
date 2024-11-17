@@ -273,7 +273,15 @@
             cursor: pointer;
             margin: 0 20px; /* 버튼 사이 간격 */
         }
+        .modal_for_fruit-img-button[aria-disabled="true"]{
+            pointer-events: none;
 
+            opacity: 0.5;
+        }
+        .modal_for_fruit-img-button[aria-disabled="false"] {
+            pointer-events: auto; /* 클릭 활성화 */
+            opacity: 1; /* 정상 버튼 스타일 */
+        }
         .modal_for_fruit-buttons {
             display: flex;
             justify-content: space-around;
@@ -505,9 +513,9 @@
                 <img src="" alt="Fruit Image" class="fruit-img-modal_for_fruit" id="modal_for_fruit_FruitImg">
                 <p id="modal_for_fruit_FruitSummary">아직 열매가 맺히는 중이에요!</p>
                 <div class="modal_for_fruit-buttons">
-                    <img src="/static/icons/delete_button.png" id="deleteFruit" alt="삭제 버튼" class="modal_for_fruit-img-button">
-                    <img src="/static/icons/save_button.png" id="saveFruit" alt="저장 버튼" class="modal_for_fruit-img-button">
-                </div>
+                    <img src="/static/icons/delete_button.png" id="deleteFruit" alt="삭제 버튼" class="modal_for_fruit-img-button" aria-disabled="false">
+                    <img src="/static/icons/save_button.png" id="saveFruit" alt="저장 버튼" class="modal_for_fruit-img-button" aria-disabled="false">
+                </div>                
             </div>
         </div>
         <div class="tree">
@@ -845,6 +853,7 @@
         document.getElementById("storage-page-number").textContent = `${currentStoragePage}/${Math.ceil(groupedDates.length / storageItemsPerPage)}`;
     }
 
+        
 
         // 기존 기능 관련 코드 (타이핑 감지 및 프로그레스 바 업데이트)
         document.addEventListener("DOMContentLoaded", function() {
@@ -876,27 +885,24 @@
 
             // 열매를 클릭했을 때 모달을 표시하는 함수
             function showFruit_modal_for_fruit(fruitId, summary) {
-                modal_for_fruit_FruitImg.src = `/static/fruit/fruit_0.png`;
+                const fruitElement = document.getElementById(`fruit${fruitId}`);
+
+                if (fruitElement) {
+                    modal_for_fruit_FruitImg.src = fruitElement.src;
+                } else {
+                    modal_for_fruit_FruitImg.src = `/static/fruit/fruit_0.png`;
+                }
+
                 modal_for_fruit_FruitSummary.innerText = summary;
                 fruit_modal_for_fruit.style.display = "block";
-
-                currentFruitElement = document.getElementById(`fruit${fruitId}`);
+                currentFruitElement = fruitElement;
             }
-
-            // 모달 닫기
-            close_modal_for_fruit.onclick = function() {
-                fruit_modal_for_fruit.style.display = "none";
-            }
-
             // 모달 외부를 클릭하여 닫기
             window.onclick = function(event) {
                 if (event.target == fruit_modal_for_fruit) {
                     fruit_modal_for_fruit.style.display = "none";
                 }
             }
-
-
-
             faceImg.src = "/static/face/face_neutral.png";
 
             // 입력 필드에서 타이핑 중 발생하는 이벤트
@@ -984,14 +990,23 @@
             const fruit2 = document.getElementById('fruit2');
             const fruit3 = document.getElementById('fruit3');
 
-            if (treeStage === "fruit_tree" || treeStage === "end") {
-                fruit1.style.display = "block";
-                fruit2.style.display = "block";
-                fruit3.style.display = "block";
-            } else {
+            const saveButton = document.getElementById("saveFruit");
+            const deleteButton = document.getElementById("deleteFruit");
+
+            if (treeStage === "fruit_tree") {
+                saveButton.setAttribute("aria-disabled", "true");
+                deleteButton.setAttribute("aria-disabled", "true");
+            }
+            else if (treeStage === "end") {
+                saveButton.setAttribute("aria-disabled", "false");
+                deleteButton.setAttribute("aria-disabled", "false");
+
+            }else {
                 fruit1.style.display = "none";
                 fruit2.style.display = "none";
                 fruit3.style.display = "none";
+                aveButton.setAttribute("aria-disabled", "false");
+                deleteButton.setAttribute("aria-disabled", "false");
             }
             // tree_stage가 "end"인 경우에만 열매 업데이트
             if (treeStage === "end") {
@@ -1000,6 +1015,7 @@
                         showFruit_modal_for_fruit(fruit.id, fruit.summary);
                     };
                 });
+                loadFruitImages();
 
             } else {
                 treeImg.src = `/static/tree/${treeStage}.png`;
@@ -1123,6 +1139,27 @@
             updateFaceImage(emotionData.emotion);
 
             updateProgressBar();
+            }
+            async function loadFruitImages() {
+                try {
+                    const response = await fetch('/generate_fruit_images', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+
+                    const fruits = await response.json();
+                    if (fruits.length > 0) {
+                        fruit1.src = fruits[0]?.image_path || "";
+                        fruit2.src = fruits[1]?.image_path || "";
+                        fruit3.src = fruits[2]?.image_path || "";
+
+                        fruit1.style.display = "block";
+                        fruit2.style.display = "block";
+                        fruit3.style.display = "block";
+                    }
+                } catch (error) {
+                    console.error("Error loading fruit images:", error);
+                }
             }
             // 표정 업데이트 함수 분리
             function updateFaceImage(emotion) {
