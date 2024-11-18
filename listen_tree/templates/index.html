@@ -515,7 +515,7 @@
                 <div class="modal_for_fruit-buttons">
                     <img src="/static/icons/delete_button.png" id="deleteFruit" alt="삭제 버튼" class="modal_for_fruit-img-button" aria-disabled="false">
                     <img src="/static/icons/save_button.png" id="saveFruit" alt="저장 버튼" class="modal_for_fruit-img-button" aria-disabled="false">
-                </div>                
+                </div>
             </div>
         </div>
         <div class="tree">
@@ -589,7 +589,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- 과일 요약 모달 -->
             <div id="fruit-summary-modal" class="modal">
                 <span id="close-fruit-summary-modal" style="cursor: pointer; font-size: 24px; position: absolute; top: 10px; right: 10px;">✖</span>
@@ -618,7 +618,7 @@
         let currentStoragePage = 1;
         const storageItemsPerPage = 3;
         let totalStoragePages = 0;
-        
+
         async function loadFruits() {
             try {
                 const response = await fetch('/fruits');
@@ -853,7 +853,7 @@
         document.getElementById("storage-page-number").textContent = `${currentStoragePage}/${Math.ceil(groupedDates.length / storageItemsPerPage)}`;
     }
 
-        
+
 
         // 기존 기능 관련 코드 (타이핑 감지 및 프로그레스 바 업데이트)
         document.addEventListener("DOMContentLoaded", function() {
@@ -943,7 +943,7 @@
                 typingPreview.innerText = '';  // 타이핑 미리보기 초기화
             }
             let currentPromptCount = 0; // 현재 프롬프트 수
-            const stageThresholds = [10, 30, 60, 100, 150]; // 각 단계별 프롬프트 목표
+            const stageThresholds = [1, 3, 6, 10, 15]; // 각 단계별 프롬프트 목표 #테스팅
             const progressBar = document.getElementById("progress-bar");
 
             function updateProgressBar() {
@@ -957,23 +957,38 @@
                 const prevThreshold = stageIndex > 0 ? stageThresholds[stageIndex - 1] : 0;
                 const currentThreshold = stageThresholds[stageIndex];
 
-                // 현재 단계에서의 진행률 계산
-                const progressPercentage = ((currentPromptCount - prevThreshold) / (currentThreshold - prevThreshold)) * 100;
+                // 현재 단계에서의 진행률 계산 (0~100 범위로 클램핑)
+                const progressPercentage = Math.min(Math.max(((currentPromptCount - prevThreshold) / Math.max((currentThreshold - prevThreshold), 1)) * 100, 0), 100);
+
+                // 디버깅 출력
+                console.log(`currentPromptCount: ${currentPromptCount}`);
+                console.log(`prevThreshold: ${prevThreshold}, currentThreshold: ${currentThreshold}`);
+                console.log(`progressPercentage: ${progressPercentage}`);
 
                 // 프로그레스 바 너비 업데이트
                 progressBar.style.width = `${progressPercentage}%`;
             }
 
+
             async function sendMessage(message) {
-            // 사용자 입력을 서버로 보내기
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message })
+                // 사용자 입력을 서버로 보내기
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
             });
 
             const data = await response.json();
             treeResponse.innerText = `${data.response}`;
+            // 감정 분석 요청 추가 및 표정 업데이트
+            const emotionResponse = await fetch('/analyze_emotion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
+            const emotionData = await emotionResponse.json();
+            updateFaceImage(emotionData.emotion);
+            updateProgressBar();
 
             // 나무 성장 상태에 따른 이미지 업데이트
             const treeStage = data.tree_stage;
@@ -1001,7 +1016,8 @@
                 saveButton.setAttribute("aria-disabled", "false");
                 deleteButton.setAttribute("aria-disabled", "false");
 
-            }else {
+            }
+            else {
                 fruit1.style.display = "none";
                 fruit2.style.display = "none";
                 fruit3.style.display = "none";
@@ -1075,9 +1091,11 @@
             // 나무를 seed 상태로 초기화
             function resetTreeToSeedStage() {
                 const treeResponse = document.getElementById("tree-response");
+                const faceImg = document.getElementById("face");
 
                 // 나무, 표정, 텍스트를 초기 상태로 설정
                 treeImg.src = '/static/tree/seed.png';
+                faceImg.src = '/static/face/face_neutral';
 
                 progressBar.style.width = "0%";
                 currentPromptCount = 0;
@@ -1126,16 +1144,8 @@
                 const fruitModal = document.getElementById("fruit_modal_for_fruit");
                 fruitModal.style.display = "none"; // 모달 닫기
             });
-            
-            // 감정 분석 요청 추가 및 표정 업데이트
-            const emotionResponse = await fetch('/analyze_emotion', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message })
-            });
-            const emotionData = await emotionResponse.json();
-            updateFaceImage(emotionData.emotion);
-            updateProgressBar();
+
+
             }
             async function loadFruitImages() {
                 try {

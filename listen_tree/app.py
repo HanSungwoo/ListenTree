@@ -38,12 +38,12 @@ client = OpenAI(
     api_key=os.environ["OPENAI_API_KEY"]
 )
 
-# 사용자 데이터 (간단한 예로 메모리에 저장)
+# 사용자 데이터 (간단한 예로 메모리에 저장) #테스팅
 user_data = {
-    "conversation_count": 148,
-    "tree_stage": "fruit_tree",
+    "conversation_count": 0,
+    "tree_stage": "seed",
     "fruit": [],
-    "chat_history": [{"user": sentence} for sentence in diary_text],
+    "chat_history": [],
     "fruits": fruits_data,
     "fruits_storage": fruits_storage_data,
 }
@@ -96,15 +96,15 @@ def generate_response(user_input, model = model, client = client):
 
 # 나무 성장 단계 결정 함수
 def update_tree_stage(conversation_count):
-    if conversation_count < 10:
+    if conversation_count < 1:
         return "seed"
-    elif conversation_count < 30:
+    elif conversation_count < 3:
         return "sapling"
-    elif conversation_count < 60:
+    elif conversation_count < 6:
         return "small_tree"
-    elif conversation_count < 100:
+    elif conversation_count < 10:
         return "large_tree"
-    elif conversation_count < 150:
+    elif conversation_count < 15:
         return "fruit_tree"
     else:
         return "end"
@@ -217,19 +217,19 @@ def chat():
 
     # 열매 나무가 완전히 성장한 후 (end 상태) 열매 수확 및 초기화
     if user_data["tree_stage"] == "end":
-        first_fruit_summary = summarize_conversation(user_data["chat_history"][:50])
+        first_fruit_summary = summarize_conversation(user_data["chat_history"][:5])
         user_data["fruit"].append({
             "id": len(user_data["fruit"]) + 1,
             "summary": first_fruit_summary
         })
 
-        second_fruit_summary = summarize_conversation(user_data["chat_history"][50:100])
+        second_fruit_summary = summarize_conversation(user_data["chat_history"][5:10])
         user_data["fruit"].append({
             "id": len(user_data["fruit"]) + 1,
             "summary": second_fruit_summary
         })
 
-        third_fruit_summary = summarize_conversation(user_data["chat_history"][100:150])
+        third_fruit_summary = summarize_conversation(user_data["chat_history"][10:15])
         user_data["fruit"].append({
             "id": len(user_data["fruit"]) + 1,
             "summary": third_fruit_summary
