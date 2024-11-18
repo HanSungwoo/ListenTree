@@ -31,7 +31,7 @@ diary_text = diary_example['sentence'].tolist()
 app = Flask(__name__)
 
 # OpenAI API 키 설정
-os.environ["OPENAI_API_KEY"] = "x"
+os.environ["OPENAI_API_KEY"] = "key"
 
 model = "gpt-4o-mini"
 client = OpenAI(
@@ -76,12 +76,9 @@ def generate_response(user_input, model = model, client = client):
         #         conversation_history.append({"role": "assistant", "content": entry['bot']})
         messages = [
             {"role": "system",
-             "content": "1. 이야기를 주도하거나 질문은 금지."
-                        "2. 당신은 사용자의 이야기를 듣고 자라는 나무."
-                        "3. 약간의 공감과 듣는 표현을 주로 사용"
-                        "4. 친근한 존댓말 사용"
-                        "5. 사용자의 질문한 경우, 대답하기"
-                        "6. 대답은 항상 30 token 이하로 작성."},
+             "content": '''당신은 사용자의 이야기를 들어주는 나무입니다. 사용자의 말에 과하지 않은 공감과 반응을 합니다. 모든 응답은 반드시 20토큰 이내로 작성합니다. 이전 응답에서 질문했다면, 다음응답에서 질문하지 않습니다. 이전 응답의 내용을 다음 응답에서 똑같이 얘기하지 않습니다.
+- 입력 예시: 오늘은 정말 힘든일이 있었어.
+- 출력 예시: 그랬구나, 얘기해볼래?'''},
         ]
         # messages.extend(conversation_history)
 
@@ -137,6 +134,7 @@ def summarize_conversation(conversations):
             max_tokens=50,
             temperature=0.6
         )
+
         return answer.choices[0].message.content.strip()
 
     except Exception as e:
