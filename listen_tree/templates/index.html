@@ -605,7 +605,7 @@
 
 <script>
         let typingTimer;
-        const doneTypingInterval = 1000;
+        const doneTypingInterval = 2000;
         let collectedTexts = [];
 
         let fruits = []; // JSON 파일에서 로드된 과일 데이터를 저장할 변수
@@ -964,7 +964,6 @@
                 progressBar.style.width = `${progressPercentage}%`;
             }
 
-
             async function sendMessage(message) {
             // 사용자 입력을 서버로 보내기
             const response = await fetch('/chat', {
@@ -992,6 +991,7 @@
 
             const saveButton = document.getElementById("saveFruit");
             const deleteButton = document.getElementById("deleteFruit");
+            const closeButton = document.getElementById("close_modal_for_fruit");
 
             if (treeStage === "fruit_tree") {
                 saveButton.setAttribute("aria-disabled", "true");
@@ -1016,7 +1016,6 @@
                     };
                 });
                 loadFruitImages();
-
             } else {
                 treeImg.src = `/static/tree/${treeStage}.png`;
             }
@@ -1059,13 +1058,10 @@
                 );
             }
 
-
             // 나무와 대화 내용을 초기화 (배경만 남김)
             function resetTreeToEmptyStage() {
                 const appContainer = document.querySelector(".app-container");
-
                 // 나무와 텍스트, 표정을 숨김
-
                 // 빈 화면 클릭 이벤트 등록
                 appContainer.onclick = function () {
                     appContainer.onclick = null; // 클릭 이벤트 제거
@@ -1075,7 +1071,6 @@
 
             let harvestedFruitsCount = 0; // 수확된 열매 수
             const totalFruits = 3; // 전체 열매 개수
-
 
             // 나무를 seed 상태로 초기화
             function resetTreeToSeedStage() {
@@ -1127,8 +1122,11 @@
                     }
                 }
             }
-
-
+            closeButton.addEventListener("click", function () {
+                const fruitModal = document.getElementById("fruit_modal_for_fruit");
+                fruitModal.style.display = "none"; // 모달 닫기
+            });
+            
             // 감정 분석 요청 추가 및 표정 업데이트
             const emotionResponse = await fetch('/analyze_emotion', {
                 method: 'POST',
@@ -1137,7 +1135,6 @@
             });
             const emotionData = await emotionResponse.json();
             updateFaceImage(emotionData.emotion);
-
             updateProgressBar();
             }
             async function loadFruitImages() {
@@ -1173,7 +1170,7 @@
                 // 일정 시간 후 기본 표정으로 되돌리기
                 setTimeout(() => {
                     faceImg.src = "/static/face/face_neutral.png";
-                }, 3000); // 3초 후 기본 표정으로 돌아감
+                }, 60000); // 60초 후 기본 표정으로 돌아감
             }
 
         });
