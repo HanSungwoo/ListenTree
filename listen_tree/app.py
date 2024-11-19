@@ -10,6 +10,16 @@ FRUITS_STORAGE_FILE_PATH = "listen_tree/database/fruits_storage_items.jsonl"
 
 fruits_items = ["apple", "grape", "pear"]
 
+test_check = False  #사용자 테스트의 경우 바꾸기
+
+# OpenAI API 키 설정
+os.environ["OPENAI_API_KEY"] = "key"
+
+model = "gpt-4o-mini"
+client = OpenAI(
+    api_key=os.environ["OPENAI_API_KEY"]
+)
+
 # JSONL 데이터를 읽어오는 함수
 def load_jsonl_data(file_path):
     try:
@@ -30,23 +40,56 @@ diary_text = diary_example['sentence'].tolist()
 # Flask 앱 생성
 app = Flask(__name__)
 
-# OpenAI API 키 설정
-os.environ["OPENAI_API_KEY"] = "key"
+if test_check: #사용자 테스트 하는경우
+    # 사용자 데이터 (간단한 예로 메모리에 저장) #테스팅
+    user_data = {
+        "conversation_count": 0,
+        "tree_stage": "seed",
+        "fruit": [],
+        "chat_history": [],
+        "fruits": fruits_data,
+        "fruits_storage": fruits_storage_data,
+    }
+    # 나무 성장 단계 결정 함수
+    def update_tree_stage(conversation_count):
+        if conversation_count < 1:
+            return "seed"
+        elif conversation_count < 3:
+            return "sapling"
+        elif conversation_count < 6:
+            return "small_tree"
+        elif conversation_count < 10:
+            return "large_tree"
+        elif conversation_count < 15:
+            return "fruit_tree"
+        else:
+            return "end"
+        
+else:
+    # 사용자 데이터 (간단한 예로 메모리에 저장)
+    user_data = {
+        "conversation_count": 148,
+        "tree_stage": "fruit_tree",
+        "fruit": [],
+        "chat_history": [{"user": sentence} for sentence in diary_text],
+        "fruits": fruits_data,
+        "fruits_storage": fruits_storage_data,
+    }
+    # 나무 성장 단계 결정 함수
+    def update_tree_stage(conversation_count):
+        if conversation_count < 10:
+            return "seed"
+        elif conversation_count < 30:
+            return "sapling"
+        elif conversation_count < 60:
+            return "small_tree"
+        elif conversation_count < 100:
+            return "large_tree"
+        elif conversation_count < 150:
+            return "fruit_tree"
+        else:
+            return "end"
 
-model = "gpt-4o-mini"
-client = OpenAI(
-    api_key=os.environ["OPENAI_API_KEY"]
-)
-
-# 사용자 데이터 (간단한 예로 메모리에 저장) #테스팅
-user_data = {
-    "conversation_count": 0,
-    "tree_stage": "seed",
-    "fruit": [],
-    "chat_history": [],
-    "fruits": fruits_data,
-    "fruits_storage": fruits_storage_data,
-}
 
 def sentiment_classification(summary):
     prompt = f"""
@@ -93,21 +136,6 @@ def generate_response(user_input, model = model, client = client):
     except Exception as e:
         return f"Error: {str(e)}"
 
-
-# 나무 성장 단계 결정 함수
-def update_tree_stage(conversation_count):
-    if conversation_count < 1:
-        return "seed"
-    elif conversation_count < 3:
-        return "sapling"
-    elif conversation_count < 6:
-        return "small_tree"
-    elif conversation_count < 10:
-        return "large_tree"
-    elif conversation_count < 15:
-        return "fruit_tree"
-    else:
-        return "end"
 
 
 # 열매 요약 기능 구현 (최근 대화 내용을 요약)
@@ -207,7 +235,11 @@ def get_fruits_storage():
 def chat():
     user_input = request.json['message']
     response = generate_response(user_input)
-
+    if test_check:
+        checking_point = 1
+        print(checking_point)
+    else:
+        checking_point = 10
     # 대화 기록을 저장
     user_data["chat_history"].append({"user": user_input, "bot": response})
 
@@ -217,19 +249,19 @@ def chat():
 
     # 열매 나무가 완전히 성장한 후 (end 상태) 열매 수확 및 초기화
     if user_data["tree_stage"] == "end":
-        first_fruit_summary = summarize_conversation(user_data["chat_history"][:5])
+        first_fruit_summary = summarize_conversation(user_data["chat_history"][:5*checking_point])
         user_data["fruit"].append({
             "id": len(user_data["fruit"]) + 1,
             "summary": first_fruit_summary
         })
 
-        second_fruit_summary = summarize_conversation(user_data["chat_history"][5:10])
+        second_fruit_summary = summarize_conversation(user_data["chat_history"][5*checking_point:10*checking_point])
         user_data["fruit"].append({
             "id": len(user_data["fruit"]) + 1,
             "summary": second_fruit_summary
         })
 
-        third_fruit_summary = summarize_conversation(user_data["chat_history"][10:15])
+        third_fruit_summary = summarize_conversation(user_data["chat_history"][10*checking_point:15*checking_point])
         user_data["fruit"].append({
             "id": len(user_data["fruit"]) + 1,
             "summary": third_fruit_summary
