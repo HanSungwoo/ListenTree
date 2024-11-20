@@ -1007,7 +1007,10 @@
             const saveButton = document.getElementById("saveFruit");
             const deleteButton = document.getElementById("deleteFruit");
             const closeButton = document.getElementById("close_modal_for_fruit");
-
+            closeButton.addEventListener("click", function () {
+                const fruitModal = document.getElementById("fruit_modal_for_fruit");
+                fruitModal.style.display = "none";
+            });
             if (treeStage === "fruit_tree") {
                 saveButton.setAttribute("aria-disabled", "true");
                 deleteButton.setAttribute("aria-disabled", "true");
@@ -1177,10 +1180,6 @@
                     faceImg.src = "/static/face/face_neutral.png"; // 감정이 없을 때 기본 표정
                 }
 
-                // 일정 시간 후 기본 표정으로 되돌리기
-                setTimeout(() => {
-                    faceImg.src = "/static/face/face_neutral.png";
-                }, 60000); // 60초 후 기본 표정으로 돌아감
             }
 
         });
