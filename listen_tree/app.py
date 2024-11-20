@@ -34,9 +34,9 @@ fruits_data = load_jsonl_data(FRUITS_FILE_PATH)
 fruits_storage_data = load_jsonl_data(FRUITS_STORAGE_FILE_PATH)
 
 diary_example = pd.read_csv('listen_tree/diary.csv', header=None, names=['sentence'])
-
 # 텍스트를 분할하여 저장
 diary_text = diary_example['sentence'].tolist()
+
 # Flask 앱 생성
 app = Flask(__name__)
 
@@ -111,25 +111,44 @@ def sentiment_classification(summary):
 # 대화 기능 구현 (GPT 호출)
 def generate_response(user_input, model = model, client = client):
     try:
-        # 최근 대화 5개를 사용
-        # conversation_history = [{"role": "user", "content": user_input}]
-        # # 이전 대화가 있으면 추가
-        # if len(user_data["chat_history"]) > 0:
-        #     for entry in user_data["chat_history"][-5:]:  # 최근 5개의 대화만 사용
-        #         conversation_history.append({"role": "assistant", "content": entry['bot']})
+        #최근 대화 5개를 사용
+        conversation_history = [{"role": "user", "content": user_input}]
+        # 이전 대화가 있으면 추가
+        if test_check:
+            if len(user_data["chat_history"]) > 4:
+                for entry in user_data["chat_history"][-5:]:  # 최근 5개의 대화만 사용
+                    conversation_history.append({"role": "assistant", "content": entry['bot']})
+            else:
+                for entry in user_data["chat_history"]:  # 최근 5개의 대화만 사용
+                    conversation_history.append({"role": "assistant", "content": entry['bot']})
+        else:
+            if len(user_data["chat_history"]) > 4:
+                for entry in user_data["chat_history"][-5:]:  # 최근 5개의 대화만 사용
+                    conversation_history.append({"role": "assistant", "content": entry['user']})
+            else:
+                for entry in user_data["chat_history"]:  # 최근 5개의 대화만 사용
+                    conversation_history.append({"role": "assistant", "content": entry['user']})
+
         messages = [
             {"role": "system",
-             "content": '''당신은 사용자의 이야기를 들어주는 나무입니다. 사용자의 말에 과하지 않은 공감과 반응을 합니다. 모든 응답은 반드시 20토큰 이내로 작성합니다. 이전 응답에서 질문했다면, 다음응답에서 질문하지 않습니다. 이전 응답의 내용을 다음 응답에서 똑같이 얘기하지 않습니다.
+             "content": '''
+             질문 금지.
+             당신은 사용자의 이야기를 들어주는 나무.
+             사용자의 말에 과하지 않은 공감과 반응.
+             모든 응답은 반드시 20토큰 이내로 작성.
+             이전 응답의 내용을 다음 응답에서 똑같이 얘기 금지.
+             친밀한 존댓말 사용.
 - 입력 예시: 오늘은 정말 힘든일이 있었어.
-- 출력 예시: 그랬구나, 얘기해볼래?'''},
-        ]
-        # messages.extend(conversation_history)
+- 출력 예시: 그랬군요, 얘기해주시겠어요?
+             '''},
+            ]
+        messages.extend(conversation_history)
 
         answer = client.chat.completions.create(
             model=model,
             messages=messages,
             max_tokens=30,
-            temperature=0.7
+            temperature=0.6
         )
         return answer.choices[0].message.content.strip()
 
@@ -191,6 +210,13 @@ def emotion_recognition(user_input):
 
     # 응답에서 감정 라벨 추출.choices[0].message.content.strip()
     emotion = response.choices[0].message.content.strip()
+
+    valid_emotions = ["angry", "sad", "happy", "neutral", "surprise", "worry"]
+
+    # 감정 라벨 확인 및 기본값 설정
+    if emotion not in valid_emotions:
+        emotion = "neutral"
+
     return emotion
 
 @app.route('/generate_fruit_images', methods=['POST'])
@@ -237,7 +263,7 @@ def chat():
     response = generate_response(user_input)
     if test_check:
         checking_point = 1
-        print(checking_point)
+        # print(checking_point)
     else:
         checking_point = 10
     # 대화 기록을 저장
@@ -290,7 +316,8 @@ def get_all_fruit_summaries():
 @app.route('/analyze_emotion', methods=['POST'])
 def analyze_emotion():
     user_input = request.json['message']
-    emotion = emotion_recognition(user_input)
+    response = generate_response(user_input)
+    emotion = emotion_recognition(response)
     return jsonify({'emotion': emotion})
 
 @app.route('/save_fruit', methods=['POST'])
