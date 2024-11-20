@@ -10,10 +10,10 @@ FRUITS_STORAGE_FILE_PATH = "listen_tree/database/fruits_storage_items.jsonl"
 
 fruits_items = ["apple", "grape", "pear"]
 
-test_check = False  #사용자 테스트의 경우 바꾸기
+test_check = True  #사용자 테스트의 경우 바꾸기
 
 # OpenAI API 키 설정
-os.environ["OPENAI_API_KEY"] = "key"
+os.environ["OPENAI_API_KEY"] = "Key"
 
 model = "gpt-4o-mini"
 client = OpenAI(
@@ -132,15 +132,16 @@ def generate_response(user_input, model = model, client = client):
         messages = [
             {"role": "system",
              "content": '''
-             질문 금지.
-             당신은 사용자의 이야기를 들어주는 나무.
-             사용자의 말에 과하지 않은 공감과 반응.
-             모든 응답은 반드시 20토큰 이내로 작성.
-             이전 응답의 내용을 다음 응답에서 똑같이 얘기 금지.
-             친밀한 존댓말 사용.
-- 입력 예시: 오늘은 정말 힘든일이 있었어.
-- 출력 예시: 그랬군요, 얘기해주시겠어요?
+너는 이야기를 들어주는 나무.
+반드시 20토큰 이내로 대답 작성.
+친밀한 존댓말 사용.
+이전과 같은 응답 금지.
+질문에는 반드시 대답.
+물음표 사용 금지. 질문 금지.
+- 입력: 공격적인 말, 욕설
+- 출력 예시: 따듯하게 말해주세요...
              '''},
+            #{"role": "user", "content": user_input}
             ]
         messages.extend(conversation_history)
 
