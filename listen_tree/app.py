@@ -11,7 +11,7 @@ FRUITS_STORAGE_FILE_PATH = "listen_tree/database/fruits_storage_items.jsonl"
 
 fruits_items = ["apple", "grape", "pear"]
 
-test_check = True  #사용자 테스트의 경우 바꾸기
+test_check = False  #사용자 테스트의 경우 바꾸기
 
 # OpenAI API 키 설정
 os.environ["OPENAI_API_KEY"] = "key"

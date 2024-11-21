@@ -88,7 +88,7 @@
             border-radius: 10px;
             padding: 10px;
             margin: 10px auto;
-            display: inline-block;
+            display: block;
             font-size: 18px;
         }
         .tree-response {
@@ -97,7 +97,7 @@
             padding: 10px;
             font-size: 18px;
             margin: 10px auto;
-            display: inline-block;
+            display: block;
             color: green;
             text-align: center;
             height: 50px;
@@ -788,7 +788,6 @@
 
             fruitGrid.appendChild(fruitItem);
         });
-
         document.getElementById("page-number").textContent = `${currentPage}/${totalPages}`;
     }
 
@@ -849,11 +848,8 @@
             storageBox.appendChild(fruitContainer);
             storageGrid.appendChild(storageBox);
         });
-
         document.getElementById("storage-page-number").textContent = `${currentStoragePage}/${Math.ceil(groupedDates.length / storageItemsPerPage)}`;
     }
-
-
 
         // 기존 기능 관련 코드 (타이핑 감지 및 프로그레스 바 업데이트)
         document.addEventListener("DOMContentLoaded", function() {
@@ -862,7 +858,6 @@
             const treeResponse = document.getElementById("tree-response"); // 나무 응답 영역
             const userResponse = document.getElementById("user-response"); // 사용자 입력 영역
             const faceImg = document.getElementById('face');
-
             const fruit_modal_for_fruit = document.getElementById("fruit_modal_for_fruit");
             const close_modal_for_fruit = document.getElementById("close_modal_for_fruit");
             const modal_for_fruit_FruitImg = document.getElementById("modal_for_fruit_FruitImg");
@@ -886,13 +881,11 @@
             // 열매를 클릭했을 때 모달을 표시하는 함수
             function showFruit_modal_for_fruit(fruitId, summary) {
                 const fruitElement = document.getElementById(`fruit${fruitId}`);
-
                 if (fruitElement) {
                     modal_for_fruit_FruitImg.src = fruitElement.src;
                 } else {
                     modal_for_fruit_FruitImg.src = `/static/fruit/fruit_0.png`;
                 }
-
                 modal_for_fruit_FruitSummary.innerText = summary;
                 fruit_modal_for_fruit.style.display = "block";
                 currentFruitElement = fruitElement;
@@ -928,7 +921,6 @@
                         typingPreview.innerText = '';  // 타이핑 미리보기 초기화
                     }
                 }
-
                 // 타이핑을 멈추었을 때 3초간 대기 후 서버로 전송
                 typingTimer = setTimeout(doneTyping, doneTypingInterval);
             });
@@ -1113,6 +1105,7 @@
             
             let harvestedFruitsCount = 0; // 수확된 열매 수
             const totalFruits = 3; // 전체 열매 개수
+
             // 열매 저장
             // Save 버튼 클릭 이벤트 설정
             saveButton.onclick = async function() {
@@ -1152,13 +1145,10 @@
                     }
                 }
             }
-
             closeButton.addEventListener("click", function () {
                 const fruitModal = document.getElementById("fruit_modal_for_fruit");
                 fruitModal.style.display = "none"; // 모달 닫기
             });
-
-
             }
             async function loadFruitImages() {
                 try {
