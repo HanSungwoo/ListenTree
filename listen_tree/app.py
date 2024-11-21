@@ -34,9 +34,7 @@ def load_jsonl_data(file_path):
 fruits_data = load_jsonl_data(FRUITS_FILE_PATH)
 fruits_storage_data = load_jsonl_data(FRUITS_STORAGE_FILE_PATH)
 
-diary_example = pd.read_csv('listen_tree/diary.csv', header=None, names=['sentence'])
-# 텍스트를 분할하여 저장
-diary_text = diary_example['sentence'].tolist()
+diary_text = load_jsonl_data('listen_tree/diary.jsonl')
 
 # Flask 앱 생성
 app = Flask(__name__)
@@ -72,7 +70,7 @@ else:
         "conversation_count": 148,
         "tree_stage": "fruit_tree",
         "fruit": [],
-        "chat_history": [{"user": sentence} for sentence in diary_text],
+        "chat_history": [sentence for sentence in diary_text],
         "fruits": fruits_data,
         "fruits_storage": fruits_storage_data,
     }
@@ -115,21 +113,13 @@ def generate_response(user_input, model = model, client = client):
         #최근 대화 5개를 사용
         conversation_history = [{"role": "user", "content": user_input}]
         # 이전 대화가 있으면 추가
-        if test_check:
-            if len(user_data["chat_history"]) > 4:
-                for entry in user_data["chat_history"][-5:]:  # 최근 5개의 대화만 사용
-                    conversation_history.append({"role": "assistant", "content": entry['bot']})
-            else:
-                for entry in user_data["chat_history"]:  # 최근 5개의 대화만 사용
-                    conversation_history.append({"role": "assistant", "content": entry['bot']})
+        if len(user_data["chat_history"]) > 4:
+            for entry in user_data["chat_history"][-5:]:  # 최근 5개의 대화만 사용
+                conversation_history.append({"role": "assistant", "content": entry['bot']})
         else:
-            if len(user_data["chat_history"]) > 4:
-                for entry in user_data["chat_history"][-5:]:  # 최근 5개의 대화만 사용
-                    conversation_history.append({"role": "assistant", "content": entry['user']})
-            else:
-                for entry in user_data["chat_history"]:  # 최근 5개의 대화만 사용
-                    conversation_history.append({"role": "assistant", "content": entry['user']})
-
+            for entry in user_data["chat_history"]:  # 최근 5개의 대화만 사용
+                conversation_history.append({"role": "assistant", "content": entry['bot']})
+        
         messages = [
             {"role": "system",
              "content": '''
