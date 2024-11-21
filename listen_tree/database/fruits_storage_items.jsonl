@@ -10,3 +10,6 @@
 { "id": 10, "name": "red_apple", "date": "24/11/15", "image": "/static/img_for_gallery/red_apple.png", "summary": "새로운 사람을 만나 즐거운 시간을 보냈다." }
 { "id": 11, "name": "green_apple", "date": "24/11/15", "image": "/static/img_for_gallery/green_apple.png", "summary": "친구와 금전적인 문제로 불필요한 싸움을 했다." }
 { "id": 12, "name": "red_apple", "date": "24/11/15", "image": "/static/img_for_gallery/red_apple.png", "summary": "가족들과 행복한 시간을 보낼 수 있었다." }
+{"id": 13, "name": "fruit3", "date": "24/11/21", "image": "http://127.0.0.1:5000/static/fruit/pear.png", "summary": "사용자는 하루 동안의 일상과 친구와의 만남, 날씨, 기분 등을 언급하며 바쁜 하루를 보냈다고 표현했다."}
+{"id": 14, "name": "fruit2", "date": "24/11/21", "image": "http://127.0.0.1:5000/static/fruit/pear.png", "summary": "사용자는 요리, 드라마, 친구와의 약속, 날씨 변화, 새로운 취미, 스트레스, 운동, 독서 등 다양한 일상 경험을 공유했습니다. 기분 변화와 활동에 대한 감정을 표현했습니다."}
+{"id": 15, "name": "fruit1", "date": "24/11/21", "image": "http://127.0.0.1:5000/static/fruit/pear.png", "summary": "사용자는 비 오는 날 우울함과 피곤을 느끼면서도 친구와의 만남, 맛있는 음식, 운동 등으로 기분이 나아졌음을 표현했습니다. 일과 스트레스, 그리고 소소한 기"}
