@@ -11,10 +11,10 @@ FRUITS_STORAGE_FILE_PATH = "listen_tree/database/fruits_storage_items.jsonl"
 
 fruits_items = ["apple", "grape", "pear"]
 
-test_check = True  #사용자 테스트의 경우 바꾸기
+test_check = False  #사용자 테스트의 경우 바꾸기
 
 # OpenAI API 키 설정
-os.environ["OPENAI_API_KEY"] = "key"
+os.environ["OPENAI_API_KEY"] = "Key"
 
 model = "gpt-4o-mini"
 client = OpenAI(
@@ -120,6 +120,7 @@ def generate_response(user_input, model = model, client = client):
             for entry in user_data["chat_history"][-5:]:  # 최근 5개의 대화만 사용
                 conversation_history.append({"role": "user", "content": entry["user"]})
                 conversation_history.append({"role": "assistant", "content": entry['bot']})
+
         conversation_history.append({"role": "user", "content": user_input})
         messages = [
             {"role": "system",
@@ -131,10 +132,8 @@ def generate_response(user_input, model = model, client = client):
 질문에는 반드시 대답.
 물음표 사용 금지. 질문 금지.
 - 입력: 공격적인 말, 욕설
-- 출력 예시: 따듯하게 말해주세요...
-             '''},
-            #{"role": "user", "content": user_input}
-            ]
+- 출력 예시: 따듯하게 말해주세요...'''}
+]
         messages.extend(conversation_history)
 
         answer = client.chat.completions.create(
