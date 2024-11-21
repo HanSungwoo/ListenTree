@@ -1,15 +1,12 @@
-{ "id": 1, "name": "red_apple", "date": "24/11/02", "image": "/static/img_for_gallery/red_apple.png", "summary": "열심히 해야 할 사람이 아무 일도 하지 않아 피해가 나에게 돌아왔다." }
-{ "id": 2, "name": "green_apple", "date": "24/11/02", "image": "/static/img_for_gallery/green_apple.png", "summary": "힘든 하루였지만 끝까지 견뎠다." }
-{ "id": 3, "name": "red_apple", "date": "24/11/02", "image": "/static/img_for_gallery/red_apple.png", "summary": "아침부터 밤까지 정신없이 스케줄을 마치고 몸이 안 좋다는 걸 깨달았다." }
-{ "id": 4, "name": "grape", "date": "24/11/08", "image": "/static/img_for_gallery/grape.png", "summary": "오늘은 많은 생각이 떠올랐던 하루였다." }
-{ "id": 5, "name": "grape", "date": "24/11/08", "image": "/static/img_for_gallery/grape.png", "summary": "힘든 시기를 이겨내며 성취감을 느꼈다." }
-{ "id": 6, "name": "green_grape", "date": "24/11/08", "image": "/static/img_for_gallery/green_grape.png", "summary": "여유로운 시간을 가지며 재충전했다." }
-{ "id": 7, "name": "green_Pear", "date": "24/11/10", "image": "/static/img_for_gallery/green_Pear.png", "summary": "오늘은 새로운 도전에 대한 결심을 한 날이었다." }
-{ "id": 8, "name": "Pear", "date": "24/11/10", "image": "/static/img_for_gallery/Pear.png", "summary": "오래된 목표를 되돌아보았다." }
-{ "id": 9, "name": "Pear", "date": "24/11/10", "image": "/static/img_for_gallery/Pear.png", "summary": "삶에 대한 소중함을 다시금 느낀 하루였다." }
-{ "id": 10, "name": "red_apple", "date": "24/11/15", "image": "/static/img_for_gallery/red_apple.png", "summary": "새로운 사람을 만나 즐거운 시간을 보냈다." }
-{ "id": 11, "name": "green_apple", "date": "24/11/15", "image": "/static/img_for_gallery/green_apple.png", "summary": "친구와 금전적인 문제로 불필요한 싸움을 했다." }
-{ "id": 12, "name": "red_apple", "date": "24/11/15", "image": "/static/img_for_gallery/red_apple.png", "summary": "가족들과 행복한 시간을 보낼 수 있었다." }
-{"id": 13, "name": "fruit3", "date": "24/11/21", "image": "http://127.0.0.1:5000/static/fruit/pear.png", "summary": "사용자는 하루 동안의 일상과 친구와의 만남, 날씨, 기분 등을 언급하며 바쁜 하루를 보냈다고 표현했다."}
-{"id": 14, "name": "fruit2", "date": "24/11/21", "image": "http://127.0.0.1:5000/static/fruit/pear.png", "summary": "사용자는 요리, 드라마, 친구와의 약속, 날씨 변화, 새로운 취미, 스트레스, 운동, 독서 등 다양한 일상 경험을 공유했습니다. 기분 변화와 활동에 대한 감정을 표현했습니다."}
-{"id": 15, "name": "fruit1", "date": "24/11/21", "image": "http://127.0.0.1:5000/static/fruit/pear.png", "summary": "사용자는 비 오는 날 우울함과 피곤을 느끼면서도 친구와의 만남, 맛있는 음식, 운동 등으로 기분이 나아졌음을 표현했습니다. 일과 스트레스, 그리고 소소한 기"}
+{ "id": 1, "name": "red_apple", "date": "24/11/02", "image": "/static/img_for_gallery/red_apple.png", "summary": "학교에 한 주만 가도 너무 지쳐서 주말에 몰아서 자게 된다. 중간고사 때문에 힘든 시간이었다."}
+{ "id": 2, "name": "green_apple", "date": "24/11/02", "image": "/static/img_for_gallery/green_apple.png", "summary": "열심히 해야 할 사람이 아무 일도 하지 않아 피해가 나에게 돌아왔다. 참아온 분노가 커져화를 내고 싶지만, 또다시 참았다. 평화로운 방법으로 문제를 해결하려고 고민 중이다." }
+{ "id": 3, "name": "red_apple", "date": "24/11/02", "image": "/static/img_for_gallery/red_apple.png", "summary": "내가 준비한 발표 자료가 완벽하지 않다는 걸 깨달아 초조했다. 하지만 최선을 다했고, 발표 후 칭찬을 들으니 마음이 조금 편안해졌다." }
+{ "id": 4, "name": "grape", "date": "24/11/08", "image": "/static/img_for_gallery/grape.png", "summary": "처음으로 도전해 본 운동이 생각보다 힘들었지만, 땀을 흘리고 나니 개운한 기분이 들었다." }
+{ "id": 5, "name": "grape", "date": "24/11/08", "image": "/static/img_for_gallery/grape.png", "summary": "예정에 없던 일이 생겨 하루가 계획과 다르게 흘러갔지만, 새로운 경험을 하게 되어 기분이 나쁘진 않았다." }
+{ "id": 6, "name": "green_grape", "date": "24/11/08", "image": "/static/img_for_gallery/green_grape.png", "summary": "친구에게 기대했던 약속이 취소되었고, 나만 혼자 남겨진 기분이었다. 더 이상 믿지 않기로 결심했다." }
+{ "id": 7, "name": "green_Pear", "date": "24/11/10", "image": "/static/img_for_gallery/green_Pear.png", "summary": "기대했던 시험 결과가 좋지 않아 좌절감을 느꼈다. 모든 노력이 헛되게 느껴져 무기력해졌다." }
+{ "id": 8, "name": "Pear", "date": "24/11/10", "image": "/static/img_for_gallery/Pear.png", "summary": "혼자서 해결하려던 문제가 도저히 풀리지 않아 결국 도움을 요청했다. 함께 해결하며 마음이 한결 가벼워졌다." }
+{ "id": 9, "name": "Pear", "date": "24/11/10", "image": "/static/img_for_gallery/Pear.png", "summary": "내가 쓴 아이디어가 인정받아 작은 상을 받았다. 노력한 결과가 보상받는 느낌이라 기분이 좋았다." }
+{ "id": 10, "name": "red_apple", "date": "24/11/15", "image": "/static/img_for_gallery/red_apple.png", "summary": "오랜만에 하늘을 보며 산책했더니 스트레스가 풀리는 기분이었다. 자연의 힘은 정말 대단하다고 느꼈다." }
+{ "id": 11, "name": "green_apple", "date": "24/11/15", "image": "/static/img_for_gallery/green_apple.png", "summary": "급히 준비한 계획이 어긋나면서 모두가 불편함을 겪었다. 나의 책임이라고 생각해 미안함이 커졌다." }
+{ "id": 12, "name": "red_apple", "date": "24/11/15", "image": "/static/img_for_gallery/red_apple.png", "summary": "작은 친절을 베풀었더니 상대방의 고마움이 느껴져 나 자신도 뿌듯해졌다. 선한 행동의 힘을 다시 느꼈다." }
