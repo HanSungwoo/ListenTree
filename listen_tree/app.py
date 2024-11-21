@@ -11,7 +11,7 @@ FRUITS_STORAGE_FILE_PATH = "listen_tree/database/fruits_storage_items.jsonl"
 
 fruits_items = ["apple", "grape", "pear"]
 
-test_check = False  #사용자 테스트의 경우 바꾸기
+test_check = True  #사용자 테스트의 경우 바꾸기
 
 # OpenAI API 키 설정
 os.environ["OPENAI_API_KEY"] = "key"
@@ -25,17 +25,16 @@ client = OpenAI(
 def load_jsonl_data(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
-            return [json.loads(line.strip()) for line in file if line.strip()]
+            return [json.loads(line.strip()) for line in file]
     except Exception as e:
         print(f"Error reading {file_path}: {e}")
         return []
 
 # JSONL 데이터 로드
-fruits_data = load_jsonl_data(FRUITS_FILE_PATH)
 fruits_storage_data = load_jsonl_data(FRUITS_STORAGE_FILE_PATH)
+fruits_data = load_jsonl_data(FRUITS_FILE_PATH)
 
 diary_text = load_jsonl_data('listen_tree/diary.jsonl')
-
 # Flask 앱 생성
 app = Flask(__name__)
 
@@ -70,7 +69,7 @@ else:
         "conversation_count": 148,
         "tree_stage": "fruit_tree",
         "fruit": [],
-        "chat_history": [sentence for sentence in diary_text],
+        "chat_history": diary_text,
         "fruits": fruits_data,
         "fruits_storage": fruits_storage_data,
     }
@@ -111,20 +110,22 @@ def sentiment_classification(summary):
 def generate_response(user_input, model = model, client = client):
     try:
         #최근 대화 5개를 사용
-        conversation_history = [{"role": "user", "content": user_input}]
+        conversation_history = []
         # 이전 대화가 있으면 추가
         if len(user_data["chat_history"]) > 4:
-            for entry in user_data["chat_history"][-5:]:  # 최근 5개의 대화만 사용
+            for entry in user_data["chat_history"]:  # 최근 5개의 대화만 사용
+                conversation_history.append({"role": "user", "content": entry["user"]})
                 conversation_history.append({"role": "assistant", "content": entry['bot']})
         else:
-            for entry in user_data["chat_history"]:  # 최근 5개의 대화만 사용
+            for entry in user_data["chat_history"][-5:]:  # 최근 5개의 대화만 사용
+                conversation_history.append({"role": "user", "content": entry["user"]})
                 conversation_history.append({"role": "assistant", "content": entry['bot']})
-        
+        conversation_history.append({"role": "user", "content": user_input})
         messages = [
             {"role": "system",
              "content": '''
 너는 이야기를 들어주는 나무.
-반드시 20토큰 이내로 대답 작성.
+반드시 30토큰 이내로 대답 작성.
 친밀한 존댓말 사용.
 이전과 같은 응답 금지.
 질문에는 반드시 대답.
@@ -139,7 +140,7 @@ def generate_response(user_input, model = model, client = client):
         answer = client.chat.completions.create(
             model=model,
             messages=messages,
-            max_tokens=30,
+            max_tokens=40,
             temperature=0.6
         )
         return answer.choices[0].message.content.strip()
@@ -161,7 +162,7 @@ def summarize_conversation(conversations):
         # 문자열 리스트를 합치기
         combined_text = "\n".join(user_messages)
         summary_prompt = f"Summarize these user messages: {combined_text}"
-
+        print(summary_prompt)
         messages = [
             {"role": "system",
              "content": "You are an AI chatbot designed to assist users with a wide range of topics, including but not limited to technology, education, personal advice, and general knowledge. You can only respond in Korean with a maximum of 50 tokens. You summarize user's text, not provide an answer. "},
