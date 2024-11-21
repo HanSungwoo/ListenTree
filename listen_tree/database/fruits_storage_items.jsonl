@@ -10,4 +10,3 @@
 { "id": 10, "name": "red_apple", "date": "24/11/15", "image": "/static/img_for_gallery/red_apple.png", "summary": "새로운 사람을 만나 즐거운 시간을 보냈다." }
 { "id": 11, "name": "green_apple", "date": "24/11/15", "image": "/static/img_for_gallery/green_apple.png", "summary": "친구와 금전적인 문제로 불필요한 싸움을 했다." }
 { "id": 12, "name": "red_apple", "date": "24/11/15", "image": "/static/img_for_gallery/red_apple.png", "summary": "가족들과 행복한 시간을 보낼 수 있었다." }
-{"id": 13, "name": "fruit3", "date": "24/11/21", "image": "http://127.0.0.1:5000/static/fruit_bad/pear.png", "summary": "사용자가 연속으로 \"ㅇ\"을 입력했습니다."}

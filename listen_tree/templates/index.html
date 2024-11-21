@@ -1117,6 +1117,9 @@
             // Save 버튼 클릭 이벤트 설정
             saveButton.onclick = async function() {
                 if (currentFruitElement && currentFruitElement.style.display !== "none") {
+                    currentFruitElement.style.display = "none";
+                    fruit_modal_for_fruit.style.display = "none";
+                    harvestedFruitsCount++;
                     const fruitData = {
                         name: currentFruitElement.id, // 열매 ID
                         image_path: currentFruitElement.src, // 열매 이미지 경로
@@ -1128,15 +1131,10 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(fruitData)
                     });
-                    fruitModal.style.display = "none"; // 모달 닫기
-                    currentFruitElement.style.display = "none"; 
-                    if (harvestedFruitsCount + 1 === totalFruits) {
+                    const result = await response.json();
+                    console.log("Fruit saved successfully:", result);
+                    if (harvestedFruitsCount === totalFruits) {
                         handleAllFruitsCollected();
-                    }
-                    else{
-                        const result = await response.json();
-                        console.log("Fruit saved successfully:", result);
-                        harvestedFruitsCount++;
                     }
                 }
             }
@@ -1146,7 +1144,6 @@
                 if (currentFruitElement && currentFruitElement.style.display !== "none") {
                     currentFruitElement.style.display = "none";
                     fruit_modal_for_fruit.style.display = "none";
-
                     if (harvestedFruitsCount + 1 === totalFruits) {
                         //showHarvestSequence(); // 마지막 열매를 수확하면 진행
                         handleAllFruitsCollected();
