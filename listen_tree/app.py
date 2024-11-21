@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, url_for
 from openai import OpenAI
+from datetime import datetime
 import json
 import os
 import pandas as pd
@@ -13,7 +14,7 @@ fruits_items = ["apple", "grape", "pear"]
 test_check = True  #사용자 테스트의 경우 바꾸기
 
 # OpenAI API 키 설정
-os.environ["OPENAI_API_KEY"] = "Key"
+os.environ["OPENAI_API_KEY"] = "key"
 
 model = "gpt-4o-mini"
 client = OpenAI(
@@ -229,12 +230,13 @@ def generate_fruit_images():
         sentiment = sentiment_classification(summary)  # 감정 분류
         # 감정에 따라 이미지 경로 설정
         if sentiment == 'positive':
+            name = random_fruit
             image_path = f"/static/fruit/{random_fruit}.png"
         else:
+            name = "bad" + random_fruit
             image_path = f"/static/fruit_bad/{random_fruit}.png"
 
-        results.append({"summary": summary, "image_path": image_path, "sentiment": sentiment})
-    
+        results.append({"name": name, "summary": summary, "image_path": image_path, "sentiment": sentiment})
     print("Generated fruit images:", results)  # 데이터 확인
     return jsonify(results)
 
@@ -321,19 +323,56 @@ def analyze_emotion():
     emotion = emotion_recognition(response)
     return jsonify({'emotion': emotion})
 
+# 열매 저장 API
 @app.route('/save_fruit', methods=['POST'])
 def save_fruit():
-    fruit_id = request.json['fruit_id']
-    # 해당 fruit_id를 보관함에 저장하는 로직을 구현
-    return jsonify({"status": "saved", "fruit_id": fruit_id})
+    global fruits_storage_data
+
+    try:
+        # 클라이언트 요청 데이터 파싱
+        fruit_id = request.json.get('name')
+        image_path = request.json.get('image_path')
+        summary = request.json.get("summary")
+
+        if not all([fruit_id, image_path, summary]):
+            return jsonify({"error": "Invalid data received"}), 400
+
+        # 새 항목 생성
+        idx_count = len(fruits_storage_data) + 1 if fruits_storage_data else 1
+        today_date = datetime.now().strftime("%y/%m/%d")
+        entry = {
+            "id": idx_count,
+            "name": fruit_id,
+            "date": today_date,
+            "image": image_path,
+            "summary": summary
+        }
+
+        # JSONL 파일에 저장
+        with open(FRUITS_STORAGE_FILE_PATH, "a", encoding="utf-8") as file:
+            json.dump(entry, file, ensure_ascii=False)
+            file.write("\n")
+
+        # 메모리 데이터 갱신
+        fruits_storage_data.append(entry)
+        return jsonify({"status": "saved", "fruit_id": fruit_id}), 200
+
+    except Exception as e:
+        print(f"Error in /save_fruit: {e}")
+        return jsonify({"error": "An error occurred while saving the fruit"}), 500
 
 @app.route('/reset_tree', methods=['POST'])
 def reset_tree():
+    global user_data
     # user_data 초기화
-    user_data["chat_history"] = []
-    user_data["conversation_count"] = 0
-    user_data["tree_stage"] = "seed"
-    user_data["fruit"] = []
+    user_data = {
+        "conversation_count": 0,
+        "tree_stage": "seed",
+        "fruit": [],
+        "chat_history": [],
+        "fruits": fruits_data,
+        "fruits_storage": fruits_storage_data,
+    }
     return jsonify({"status": "success"})
 
 if __name__ == '__main__':

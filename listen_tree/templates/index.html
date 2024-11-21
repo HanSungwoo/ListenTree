@@ -1018,7 +1018,6 @@
             else if (treeStage === "end") {
                 saveButton.setAttribute("aria-disabled", "false");
                 deleteButton.setAttribute("aria-disabled", "false");
-
             }
             else {
                 fruit1.style.display = "none";
@@ -1088,9 +1087,6 @@
                 };
             }
 
-            let harvestedFruitsCount = 0; // 수확된 열매 수
-            const totalFruits = 3; // 전체 열매 개수
-
             // 나무를 seed 상태로 초기화
             function resetTreeToSeedStage() {
                 const treeResponse = document.getElementById("tree-response");
@@ -1112,8 +1108,39 @@
                         'Content-Type': 'application/json'
                     },
                 });
+                loadFruitsStorage(); // 저장 후 보관함 새로고침
             }
-
+            
+            let harvestedFruitsCount = 0; // 수확된 열매 수
+            const totalFruits = 3; // 전체 열매 개수
+            // 열매 저장
+            // Save 버튼 클릭 이벤트 설정
+            saveButton.onclick = async function() {
+                if (currentFruitElement && currentFruitElement.style.display !== "none") {
+                    const fruitData = {
+                        name: currentFruitElement.id, // 열매 ID
+                        image_path: currentFruitElement.src, // 열매 이미지 경로
+                        summary: modal_for_fruit_FruitSummary.innerText // 열매 요약 정보
+                    };
+                    // 서버로 데이터 전송
+                    const response = await fetch('/save_fruit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(fruitData)
+                    });
+                    fruitModal.style.display = "none"; // 모달 닫기
+                    currentFruitElement.style.display = "none"; 
+                    if (harvestedFruitsCount + 1 === totalFruits) {
+                        handleAllFruitsCollected();
+                    }
+                    else{
+                        const result = await response.json();
+                        console.log("Fruit saved successfully:", result);
+                        harvestedFruitsCount++;
+                    }
+                }
+            }
+            
             // 열매 삭제
             deleteFruit.onclick = function() {
                 if (currentFruitElement && currentFruitElement.style.display !== "none") {
@@ -1129,20 +1156,6 @@
                 }
             }
 
-            // 열매 저장
-            saveFruit.onclick = function() {
-                if (currentFruitElement && currentFruitElement.style.display !== "none") {
-                    currentFruitElement.style.display = "none";
-                    fruit_modal_for_fruit.style.display = "none";
-
-                    if (harvestedFruitsCount + 1 === totalFruits) {
-                        //showHarvestSequence(); // 마지막 열매를 수확하면 진행
-                        handleAllFruitsCollected();
-                    } else {
-                        harvestedFruitsCount++; // 수확된 열매 수 증가
-                    }
-                }
-            }
             closeButton.addEventListener("click", function () {
                 const fruitModal = document.getElementById("fruit_modal_for_fruit");
                 fruitModal.style.display = "none"; // 모달 닫기
