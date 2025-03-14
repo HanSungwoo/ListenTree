@@ -7,4 +7,6 @@
  - 이하은
 
 ## Run
-  python3 app.py
+  python3 listen_tree/app.py
+
+## Run screen
