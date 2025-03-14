@@ -7,4 +7,4 @@
  - 이하은
 
 ## Run
-  python3 
+  python3 app.py
